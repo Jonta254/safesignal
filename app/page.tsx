@@ -41,6 +41,21 @@ const FEATURES = [
   },
 ];
 
+const INDUSTRIES = [
+  { icon:"⚡", name:"Electrical", detail:"Panel work, live circuits, confined plant rooms — exactly where no one should be alone and without a check-in timer.", color:"var(--gold)" },
+  { icon:"🔩", name:"Mechanical & HVAC", detail:"Rooftop plant, confined boiler rooms, pressurised systems. One failure with no one watching is one too many.", color:"var(--signal)" },
+  { icon:"🏗️", name:"Construction", detail:"Working at height, below grade, in partially built structures. Site safety ends where mobile signal does — unless you have a system.", color:"var(--cyan)" },
+  { icon:"🛢️", name:"Oil & Gas", detail:"Remote pipeline patrols, substation checks, tank farms. Mandatory lone worker protection under most jurisdiction OHS codes.", color:"var(--safe)" },
+  { icon:"🚿", name:"Utilities", detail:"Water treatment, substations, remote pump stations visited solo. UK HSE Lone Worker guidance applies by law.", color:"var(--stone)" },
+  { icon:"🔒", name:"Security & Facilities", detail:"Night patrols, single-guard buildings, remote site checks. Your guard shouldn't have to rely on a walkie-talkie from 1994.", color:"var(--alert)" },
+];
+
+const TESTIMONIALS = [
+  { text:"I worked live panels for 14 years without anything like this. You tell yourself the risk is manageable until it isn't. SafeSignal fixes the thing nobody wants to admit is broken.", name:"Derek Walsh", role:"Electrical contractor, 3-person crew", init:"DW", color:"var(--gold)" },
+  { text:"We had a near-miss on a rooftop HVAC job last summer. Nobody knew where the tech was. That's when I started looking for something like this — proper check-ins with GPS, not just a text to the office.", name:"Marcus Riley", role:"HVAC service manager", init:"MR", color:"var(--signal)" },
+  { text:"Our H&S consultant told us we needed a lone worker system or we'd fail the next site audit. We found SafeSignal before we found the others. The compliance export alone is worth it.", name:"Sandra Obote", role:"Construction site safety coordinator", init:"SO", color:"var(--safe)" },
+];
+
 const HOW = [
   { n: "01", title: "Worker starts a session", body: "Open the app, choose a check-in interval, and tap Start. The timer begins." },
   { n: "02", title: "App checks in automatically", body: "Every interval, SafeSignal logs your location and marks you safe. You do nothing." },
@@ -109,7 +124,14 @@ export default function Home() {
 
       {/* ── Nav ────────────────────────────────────────────── */}
       <nav className="nav">
-        <div className="nav-logo">Safe<span>Signal</span></div>
+        <a href="/" style={{ display:"flex",alignItems:"center",gap:10,textDecoration:"none" }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect width="32" height="32" rx="8" fill="#1A0A08"/>
+            <path d="M16 4L6 8v7c0 6 4.2 11.2 10 12.8C21.8 26.2 26 21 26 15V8L16 4z" fill="rgba(255,107,53,0.15)" stroke="#FF6B35" strokeWidth="1.3"/>
+            <path d="M10 17h2.5l1.5-3 2.5 6 2-4.5 1 1.5H22" stroke="#FF6B35" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="nav-logo">Safe<span style={{color:"var(--signal)"}}>Signal</span></span>
+        </a>
         <div className="nav-links">
           <a href="#features" className="nav-link">Features</a>
           <a href="#how" className="nav-link">How it works</a>
@@ -201,6 +223,65 @@ export default function Home() {
                 </div>
                 <h3 style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"clamp(1rem,1.8vw,1.125rem)",letterSpacing:"0.04em",color:"var(--chalk)",marginBottom:8 }}>{f.title}</h3>
                 <p style={{ fontSize:"0.875rem",lineHeight:1.75,color:"rgba(255,255,255,0.4)" }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Industries ─────────────────────────────────────── */}
+      <section className="section" style={{ background:"#08030A", paddingTop:"clamp(2rem,5vw,4rem)" }}>
+        <div className="container">
+          <div className="reveal" style={{ marginBottom:"clamp(2rem,5vw,4rem)" }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.22em",color:"var(--signal)",textTransform:"uppercase",display:"flex",alignItems:"center",gap:10,marginBottom:16 }}>
+              <span style={{ display:"block",width:20,height:1,background:"var(--signal)",opacity:0.55 }} />
+              Industries
+            </span>
+            <h2 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,7vw,5.5rem)",lineHeight:0.9,letterSpacing:"0.01em",color:"var(--chalk)" }}>
+              IF YOU WORK ALONE<br />IN ANY OF THESE,
+            </h2>
+            <p style={{ fontFamily:"'Rajdhani',sans-serif",fontSize:"clamp(1rem,2vw,1.25rem)",color:"rgba(255,255,255,0.35)",marginTop:"0.75rem",fontWeight:500 }}>you need SafeSignal.</p>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,280px),1fr))",gap:"1.25rem" }}>
+            {INDUSTRIES.map((ind, i) => (
+              <div key={ind.name} className="card reveal-scale" style={{ padding:"1.75rem",transitionDelay:`${i*55}ms` }}>
+                <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:"1rem" }}>
+                  <div style={{ width:40,height:40,borderRadius:10,background:`${ind.color}14`,border:`1px solid ${ind.color}28`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0 }}>{ind.icon}</div>
+                  <span style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"1.05rem",letterSpacing:"0.06em",color:"var(--chalk)",textTransform:"uppercase" }}>{ind.name}</span>
+                </div>
+                <p style={{ fontSize:"0.8rem",lineHeight:1.75,color:"rgba(255,255,255,0.38)" }}>{ind.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="rule" />
+
+      {/* ── Testimonials ──────────────────────────────────── */}
+      <section className="section" style={{ background:"radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255,107,53,0.06) 0%, transparent 60%), #0A040D", paddingTop:"clamp(2.5rem,6vw,5rem)" }}>
+        <div className="container">
+          <div className="reveal" style={{ marginBottom:"clamp(2rem,5vw,4rem)" }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.22em",color:"var(--signal)",textTransform:"uppercase",display:"flex",alignItems:"center",gap:10,marginBottom:16 }}>
+              <span style={{ display:"block",width:20,height:1,background:"var(--signal)",opacity:0.55 }} />
+              From the field
+            </span>
+            <h2 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,7vw,5.5rem)",lineHeight:0.9,letterSpacing:"0.01em",color:"var(--chalk)" }}>
+              REAL WORKERS.<br />REAL RISK.
+            </h2>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,320px),1fr))",gap:"1.25rem" }}>
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="card reveal-scale" style={{ padding:"2rem",transitionDelay:`${i*70}ms`,borderColor:`${t.color}22` }}>
+                <div style={{ fontSize:"2.5rem",lineHeight:1,color:`${t.color}22`,fontFamily:"Georgia,serif",marginBottom:"0.75rem" }}>&ldquo;</div>
+                <p style={{ fontSize:"0.9rem",lineHeight:1.8,color:"rgba(255,255,255,0.5)",fontStyle:"italic",marginBottom:"1.5rem" }}>{t.text}</p>
+                <div style={{ display:"flex",alignItems:"center",gap:12 }}>
+                  <div style={{ width:36,height:36,borderRadius:"50%",background:`linear-gradient(135deg,${t.color},${t.color}88)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",fontWeight:800,color:"#08030A",flexShrink:0 }}>{t.init}</div>
+                  <div>
+                    <div style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"0.875rem",letterSpacing:"0.05em",color:"var(--chalk)",textTransform:"uppercase" }}>{t.name}</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.65rem",letterSpacing:"0.08em",color:"rgba(255,255,255,0.3)",textTransform:"uppercase",marginTop:2 }}>{t.role}</div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
