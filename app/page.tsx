@@ -107,6 +107,7 @@ export default function Home() {
   const scrollBarRef = useRef<HTMLDivElement>(null);
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useReveal();
 
   useEffect(() => {
@@ -121,6 +122,10 @@ export default function Home() {
   return (
     <>
       <div ref={scrollBarRef} className="scroll-bar" />
+      <a href="/checkin" className="float-cta" aria-label="Start a check-in session">
+        <span className="float-dot" />
+        Start Check-In
+      </a>
 
       {/* ── Nav ────────────────────────────────────────────── */}
       <nav className="nav">
@@ -134,11 +139,20 @@ export default function Home() {
         </a>
         <div className="nav-links">
           <a href="#features" className="nav-link">Features</a>
-          <a href="#how" className="nav-link">How it works</a>
           <a href="#pricing" className="nav-link">Pricing</a>
-          <a href="#waitlist" className="btn btn-primary" style={{ padding: "0.5rem 1.25rem", fontSize: "0.8rem" }}>Early access</a>
+          <a href="/dashboard" className="nav-link">Dashboard</a>
+          <a href="/checkin" className="btn btn-primary" style={{ padding: "0.5rem 1.25rem", fontSize: "0.8rem" }}>Start Check-In</a>
         </div>
+        <button className={`hamburger${menuOpen?" open":""}`} onClick={() => setMenuOpen(m => !m)} aria-label="Menu">
+          <span/><span/><span/>
+        </button>
       </nav>
+      <div className={`mobile-nav${menuOpen?" open":""}`}>
+        <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
+        <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
+        <a href="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</a>
+        <a href="/checkin" className="btn-primary-mobile" onClick={() => setMenuOpen(false)}>Start Check-In →</a>
+      </div>
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section style={{
@@ -182,8 +196,8 @@ export default function Home() {
           </p>
 
           <div className="reveal" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
-            <a href="#waitlist" className="btn btn-primary">Join the waitlist</a>
-            <a href="#how" className="btn btn-ghost">See how it works</a>
+            <a href="/checkin" className="btn btn-primary">Start Check-In Now →</a>
+            <a href="/dashboard" className="btn btn-ghost">View Dashboard</a>
           </div>
 
           {/* Social proof */}
@@ -389,6 +403,10 @@ export default function Home() {
               <p style={{ fontSize:"clamp(0.9rem,1.5vw,1.05rem)",color:"rgba(255,255,255,0.42)",lineHeight:1.75,marginBottom:32,maxWidth:"100%" }}>
                 SafeSignal is in development. Join the waitlist for early access, founding-member pricing, and direct input into what we build first.
               </p>
+            </div>
+            <div className="reveal" style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginBottom:"2rem" }}>
+              <a href="/checkin" className="btn btn-primary" style={{ fontSize:"1rem",padding:"1rem 2.5rem" }}>Try It Now — Start Check-In →</a>
+              <a href="/dashboard" className="btn btn-safe" style={{ fontSize:"1rem",padding:"1rem 2rem" }}>View Dashboard</a>
             </div>
             {!submitted ? (
               <form className="reveal" onSubmit={(e) => { e.preventDefault(); if (waitlistEmail) setSubmitted(true); }} style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
