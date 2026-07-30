@@ -75,7 +75,7 @@ export default function DashboardPage() {
           <div style={{ maxWidth:1100, margin:"0 auto" }}>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.68rem", letterSpacing:"0.16em", color:"var(--signal)", marginBottom:10 }}>LONE WORKER DASHBOARD</div>
             <h1 style={{ fontSize:"clamp(1.6rem,4vw,2.4rem)", fontWeight:700, marginBottom:8 }}>Worker Status</h1>
-            <p style={{ fontSize:"0.875rem", color:"var(--stone)" }}>Live check-in status for all active lone workers.</p>
+            <p style={{ fontSize:"0.875rem", color:"var(--stone)" }}>A preview of the supervisor team view. The crew below is sample data showing how live status appears — your own check-in sessions appear beneath it.</p>
           </div>
         </div>
 
@@ -100,7 +100,7 @@ export default function DashboardPage() {
           <div className="card" style={{ marginBottom:28, overflow:"hidden" }}>
             <div style={{ padding:"16px 20px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
               <span style={{ fontWeight:700, fontSize:"0.95rem" }}>Active Workers</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.68rem", color:"var(--mist)" }}>Updated live</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.6rem", letterSpacing:"0.1em", color:"var(--signal)", background:"rgba(255,107,53,0.1)", border:"1px solid rgba(255,107,53,0.25)", padding:"3px 10px", borderRadius:100 }}>SAMPLE DATA</span>
             </div>
             {DEMO_WORKERS.map((w) => {
               const s = STATUS[w.status];

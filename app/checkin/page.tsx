@@ -68,7 +68,7 @@ export default function CheckInPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [workerName, setWorkerName] = useState("");
   const [siteName, setSiteName] = useState("");
-  const [interval, setInterval] = useState<15 | 30 | 60>(30);
+  const [interval, setIntervalMin] = useState<15 | 30 | 60>(30);
   const [secondsLeft, setSecondsLeft] = useState(30 * 60);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -188,7 +188,7 @@ export default function CheckInPage() {
     setPhase("setup");
     setWorkerName("");
     setSiteName("");
-    setInterval(30);
+    setIntervalMin(30);
     setSecondsLeft(30 * 60);
     setCheckIns([]);
     setGpsCoords(null);
@@ -256,7 +256,7 @@ export default function CheckInPage() {
                 <span style={{ color: "var(--signal)" }}>Check-In Session</span>
               </h1>
               <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.75, marginTop: 12 }}>
-                Fill in your details and choose a check-in interval. If you miss a check-in, the alert chain will fire.
+                Fill in your details and choose a check-in interval. Miss one and this device raises an overdue alarm with a grace-period countdown to confirm you&apos;re OK.
               </p>
             </div>
 
@@ -299,7 +299,7 @@ export default function CheckInPage() {
                   {([15, 30, 60] as const).map((m) => (
                     <button
                       key={m}
-                      onClick={() => { setInterval(m); setSecondsLeft(m * 60); }}
+                      onClick={() => { setIntervalMin(m); setSecondsLeft(m * 60); }}
                       style={{
                         flex: 1,
                         padding: "0.75rem",
@@ -547,7 +547,7 @@ export default function CheckInPage() {
                 CHECK-IN OVERDUE
               </h1>
               <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, marginBottom: "1.25rem" }}>
-                Your emergency contact will be notified in
+                Confirm you&apos;re OK before the grace period ends
               </p>
               <div style={{
                 fontFamily: "'JetBrains Mono',monospace",

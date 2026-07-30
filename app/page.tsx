@@ -50,10 +50,10 @@ const INDUSTRIES = [
   { icon:"🔒", name:"Security & Facilities", detail:"Night patrols, single-guard buildings, remote site checks. Your guard shouldn't have to rely on a walkie-talkie from 1994.", color:"var(--alert)" },
 ];
 
-const TESTIMONIALS = [
-  { text:"I worked live panels for 14 years without anything like this. You tell yourself the risk is manageable until it isn't. SafeSignal fixes the thing nobody wants to admit is broken.", name:"Derek Walsh", role:"Electrical contractor, 3-person crew", init:"DW", color:"var(--gold)" },
-  { text:"We had a near-miss on a rooftop HVAC job last summer. Nobody knew where the tech was. That's when I started looking for something like this — proper check-ins with GPS, not just a text to the office.", name:"Marcus Riley", role:"HVAC service manager", init:"MR", color:"var(--signal)" },
-  { text:"Our H&S consultant told us we needed a lone worker system or we'd fail the next site audit. We found SafeSignal before we found the others. The compliance export alone is worth it.", name:"Sandra Obote", role:"Construction site safety coordinator", init:"SO", color:"var(--safe)" },
+const REGULATIONS = [
+  { region:"United Kingdom", body:"Health & Safety at Work Act · HSE INDG73", detail:"Employers must assess and control the risks to anyone who works alone. HSE guidance sets out how to protect them.", color:"var(--gold)" },
+  { region:"Australia", body:"Work Health & Safety (WHS) laws", detail:"Employers have a duty to manage the risks of working alone or remotely, supported by Safe Work Australia guidance.", color:"var(--signal)" },
+  { region:"Canada", body:"Provincial OHS regulations", detail:"Rules such as British Columbia's “working alone or in isolation” require procedures to check on a worker's wellbeing.", color:"var(--safe)" },
 ];
 
 const HOW = [
@@ -203,9 +203,9 @@ export default function Home() {
           {/* Social proof */}
           <div className="reveal" style={{ marginTop:"clamp(2rem,5vw,3.5rem)",display:"flex",alignItems:"center",gap:"clamp(1rem,3vw,2rem)",flexWrap:"wrap" }}>
             {[
-              { n: "6,500+", label: "Trade deaths per year (US)" },
-              { n: "73%",   label: "Worked alone in the last week" },
-              { n: "3",     label: "Countries with lone worker laws" },
+              { n: "Timed", label: "Countdown check-in intervals" },
+              { n: "GPS", label: "Logged on every check-in" },
+              { n: "Overdue", label: "On-screen alert + grace timer" },
             ].map((s) => (
               <div key={s.label} style={{ borderLeft:"1px solid rgba(255,107,53,0.18)",paddingLeft:"clamp(0.875rem,2vw,1.25rem)" }}>
                 <p style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(1.5rem,3vw,2.25rem)",lineHeight:1,color:"var(--chalk)",marginBottom:3 }}>{s.n}</p>
@@ -272,33 +272,33 @@ export default function Home() {
 
       <div className="rule" />
 
-      {/* ── Testimonials ──────────────────────────────────── */}
+      {/* ── Why it's regulated ─────────────────────────────── */}
       <section className="section" style={{ background:"radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255,107,53,0.06) 0%, transparent 60%), #0A040D", paddingTop:"clamp(2.5rem,6vw,5rem)" }}>
         <div className="container">
           <div className="reveal" style={{ marginBottom:"clamp(2rem,5vw,4rem)" }}>
             <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.22em",color:"var(--signal)",textTransform:"uppercase",display:"flex",alignItems:"center",gap:10,marginBottom:16 }}>
               <span style={{ display:"block",width:20,height:1,background:"var(--signal)",opacity:0.55 }} />
-              From the field
+              Why it matters
             </span>
             <h2 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,7vw,5.5rem)",lineHeight:0.9,letterSpacing:"0.01em",color:"var(--chalk)" }}>
-              REAL WORKERS.<br />REAL RISK.
+              LONE WORK IS<br />REGULATED WORK.
             </h2>
+            <p style={{ fontFamily:"'Rajdhani',sans-serif",fontSize:"clamp(1rem,2vw,1.25rem)",color:"rgba(255,255,255,0.35)",marginTop:"0.75rem",fontWeight:500 }}>
+              Across major jurisdictions, protecting people who work alone is a legal duty — not a nice-to-have.
+            </p>
           </div>
           <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,320px),1fr))",gap:"1.25rem" }}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="card reveal-scale" style={{ padding:"2rem",transitionDelay:`${i*70}ms`,borderColor:`${t.color}22` }}>
-                <div style={{ fontSize:"2.5rem",lineHeight:1,color:`${t.color}22`,fontFamily:"Georgia,serif",marginBottom:"0.75rem" }}>&ldquo;</div>
-                <p style={{ fontSize:"0.9rem",lineHeight:1.8,color:"rgba(255,255,255,0.5)",fontStyle:"italic",marginBottom:"1.5rem" }}>{t.text}</p>
-                <div style={{ display:"flex",alignItems:"center",gap:12 }}>
-                  <div style={{ width:36,height:36,borderRadius:"50%",background:`linear-gradient(135deg,${t.color},${t.color}88)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",fontWeight:800,color:"#08030A",flexShrink:0 }}>{t.init}</div>
-                  <div>
-                    <div style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"0.875rem",letterSpacing:"0.05em",color:"var(--chalk)",textTransform:"uppercase" }}>{t.name}</div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.65rem",letterSpacing:"0.08em",color:"rgba(255,255,255,0.3)",textTransform:"uppercase",marginTop:2 }}>{t.role}</div>
-                  </div>
-                </div>
+            {REGULATIONS.map((r, i) => (
+              <div key={r.region} className="card reveal-scale" style={{ padding:"2rem",transitionDelay:`${i*70}ms`,borderColor:`${r.color}22` }}>
+                <div style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:800,fontSize:"1.05rem",letterSpacing:"0.06em",color:"var(--chalk)",textTransform:"uppercase",marginBottom:6 }}>{r.region}</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.66rem",letterSpacing:"0.05em",color:r.color,textTransform:"uppercase",marginBottom:"1rem",lineHeight:1.5 }}>{r.body}</div>
+                <p style={{ fontSize:"0.85rem",lineHeight:1.8,color:"rgba(255,255,255,0.5)" }}>{r.detail}</p>
               </div>
             ))}
           </div>
+          <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.62rem",letterSpacing:"0.08em",color:"rgba(255,255,255,0.25)",marginTop:"1.5rem",lineHeight:1.8 }}>
+            Regulatory frameworks are summarised here for context and change over time — always confirm the current requirements for your own jurisdiction.
+          </p>
         </div>
       </section>
 
