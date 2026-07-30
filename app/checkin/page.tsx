@@ -151,22 +151,32 @@ export default function CheckInPage() {
     setPhase("active");
   };
 
+  // Upsert the current session (keyed by sessionStart) into localStorage.
+  // Kept out of the setCheckIns updater so it stays a pure state update —
+  // React Strict Mode double-invokes updaters, which would otherwise write
+  // the session twice.
+  const persistSession = (entries: CheckIn[]) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("ss_sessions") || "[]");
+      const session = { worker: workerName, site: siteName, interval, checkIns: entries, sessionStart };
+      const idx = Array.isArray(stored)
+        ? stored.findIndex((s: { sessionStart?: string }) => s?.sessionStart === sessionStart)
+        : -1;
+      if (idx >= 0) stored[idx] = session;
+      else stored.unshift(session);
+      localStorage.setItem("ss_sessions", JSON.stringify(stored.slice(0, 20)));
+    } catch {}
+  };
+
   const doCheckIn = async () => {
     const coords = await getGps();
     const entry: CheckIn = {
       time: new Date().toISOString(),
       ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
     };
-    setCheckIns((prev) => {
-      const updated = [entry, ...prev];
-      // Persist to localStorage
-      try {
-        const stored = JSON.parse(localStorage.getItem("ss_sessions") || "[]");
-        stored.unshift({ worker: workerName, site: siteName, interval, checkIns: updated, sessionStart });
-        localStorage.setItem("ss_sessions", JSON.stringify(stored.slice(0, 20)));
-      } catch {}
-      return updated;
-    });
+    const updated = [entry, ...checkIns];
+    setCheckIns(updated);
+    persistSession(updated);
     setSecondsLeft(interval * 60);
     setCheckInFlash(true);
     setTimeout(() => setCheckInFlash(false), 1800);
