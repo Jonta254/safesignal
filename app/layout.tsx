@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "SafeSignal", template: "%s · SafeSignal" },
-  description: "Lone worker safety for the people who build everything. Automatic check-ins, GPS sharing, and escalating alerts for trade workers on the job alone.",
+  description: "Lone worker safety for the people who build everything. On-device check-in countdowns, GPS logged on every check-in, and a clear escalation plan for the moment one is missed.",
   keywords: ["lone worker safety", "electrician safety", "field worker", "check-in app", "trade safety"],
   openGraph: {
     title: "SafeSignal — Lone Worker Safety",

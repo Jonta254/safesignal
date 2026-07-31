@@ -170,7 +170,7 @@ export default function DashboardPage() {
                 <span style={{ fontWeight:700, color:"var(--alert)", fontSize:"0.92rem" }}>Alert: {overdue} worker{overdue > 1 ? "s" : ""} overdue</span>
               </div>
               <p style={{ fontSize:"0.82rem", color:"rgba(255,255,255,0.5)", marginBottom:14 }}>
-                Sarah Okafor — HVAC Tech — Rooftop Unit Tower A. Last check-in 52 minutes ago. Alert chain in progress.
+                Sarah Okafor — HVAC Tech — Rooftop Unit Tower A. Last check-in 52 minutes ago, past the grace period. In the full service, escalation to their emergency contact would begin here.
               </p>
               <div style={{ display:"flex", gap:10 }}>
                 <button style={{ background:"var(--alert)", color:"#fff", border:"none", padding:"8px 18px", borderRadius:7, fontSize:"0.8rem", fontWeight:700, cursor:"pointer", fontFamily:"'Inter',sans-serif" }}>
@@ -180,6 +180,9 @@ export default function DashboardPage() {
                   Mark Resolved
                 </button>
               </div>
+              <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.6rem", letterSpacing:"0.08em", color:"var(--mist)", marginTop:12, textTransform:"uppercase" }}>
+                Preview — controls are illustrative in this sample view
+              </p>
             </div>
           )}
 

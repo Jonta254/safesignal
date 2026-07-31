@@ -4,40 +4,40 @@ import Link from "next/link";
 
 const FEATURES = [
   {
-    icon: "⏱",
+    icon: "timer",
     title: "Dead-man check-ins",
-    desc: "Set your interval — 15, 30, or 60 minutes. Miss a check-in and the alert chain starts automatically. No manual input needed once you're on site.",
+    desc: "Choose a 15, 30, or 60-minute interval. The countdown runs on your device — miss it and it raises an overdue alarm with a grace period to confirm you're OK.",
     color: "var(--signal)",
   },
   {
-    icon: "📍",
+    icon: "pin",
     title: "GPS on every check-in",
-    desc: "Each check-in logs your exact location. If something goes wrong, your emergency contacts know where to send help — not just that something is wrong.",
+    desc: "Each check-in records your exact coordinates next to the timestamp, so your session log shows where you were — not just that you checked in.",
     color: "var(--cyan)",
   },
   {
-    icon: "🔔",
-    title: "Escalating alert chain",
-    desc: "Missed check-in → grace period → SMS to emergency contact → phone call → second contact. Each step waits for a response before escalating.",
+    icon: "bell",
+    title: "Escalation preview",
+    desc: "A missed check-in shows exactly what would happen next — grace period, then your emergency contact, step by step. Automated dispatch is on the roadmap; today it's an honest preview, never a silent promise.",
     color: "var(--alert)",
   },
   {
-    icon: "📊",
-    title: "Manager dashboard",
-    desc: "See every worker's status in real time. Green means checked in. Amber means late. Red means the alert chain is running. One view, no guessing.",
-    color: "var(--safe)",
-  },
-  {
-    icon: "📄",
-    title: "Compliance reports",
-    desc: "Generate lone worker compliance reports for UK HSE, Australia SafeWork, and Canadian OHS standards. PDF export, ready for audits.",
+    icon: "contact",
+    title: "Emergency contact",
+    desc: "Name the person who should be reached if you go quiet. Stored on your device and shown in the escalation preview, so you know the plan before you ever need it.",
     color: "var(--gold)",
   },
   {
-    icon: "📵",
-    title: "Works offline",
-    desc: "No signal? The timer keeps running and alerts queue to send the moment a connection returns. A basement is not an excuse for no safety system.",
+    icon: "grid",
+    title: "Supervisor view",
+    desc: "A team dashboard of who's checked in, who's late, and who's overdue — shown with clearly-labelled sample data as a preview of the supervisor experience.",
     color: "var(--safe)",
+  },
+  {
+    icon: "doc",
+    title: "Session export",
+    desc: "End a session and download a timestamped report of every check-in, with GPS and duration — plain text you can keep for your own records.",
+    color: "var(--cyan)",
   },
 ];
 
@@ -45,21 +45,21 @@ const INDUSTRIES = [
   { icon:"⚡", name:"Electrical", detail:"Panel work, live circuits, confined plant rooms — exactly where no one should be alone and without a check-in timer.", color:"var(--gold)" },
   { icon:"🔩", name:"Mechanical & HVAC", detail:"Rooftop plant, confined boiler rooms, pressurised systems. One failure with no one watching is one too many.", color:"var(--signal)" },
   { icon:"🏗️", name:"Construction", detail:"Working at height, below grade, in partially built structures. Site safety ends where mobile signal does — unless you have a system.", color:"var(--cyan)" },
-  { icon:"🛢️", name:"Oil & Gas", detail:"Remote pipeline patrols, substation checks, tank farms. Mandatory lone worker protection under most jurisdiction OHS codes.", color:"var(--safe)" },
-  { icon:"🚿", name:"Utilities", detail:"Water treatment, substations, remote pump stations visited solo. UK HSE Lone Worker guidance applies by law.", color:"var(--stone)" },
+  { icon:"🛢️", name:"Oil & Gas", detail:"Remote pipeline patrols, substation checks, tank farms — often hours from the nearest help if something goes wrong.", color:"var(--safe)" },
+  { icon:"🚿", name:"Utilities", detail:"Water treatment, substations, remote pump stations visited solo — routine work that turns serious the moment no one knows you're in trouble.", color:"var(--stone)" },
   { icon:"🔒", name:"Security & Facilities", detail:"Night patrols, single-guard buildings, remote site checks. Your guard shouldn't have to rely on a walkie-talkie from 1994.", color:"var(--alert)" },
 ];
 
-const REGULATIONS = [
-  { region:"United Kingdom", body:"Health & Safety at Work Act · HSE INDG73", detail:"Employers must assess and control the risks to anyone who works alone. HSE guidance sets out how to protect them.", color:"var(--gold)" },
-  { region:"Australia", body:"Work Health & Safety (WHS) laws", detail:"Employers have a duty to manage the risks of working alone or remotely, supported by Safe Work Australia guidance.", color:"var(--signal)" },
-  { region:"Canada", body:"Provincial OHS regulations", detail:"Rules such as British Columbia's “working alone or in isolation” require procedures to check on a worker's wellbeing.", color:"var(--safe)" },
+const DUTY = [
+  { k:"01", title:"A duty of care", body:"Wherever people work alone, employers carry a responsibility to protect them from foreseeable harm. It's a baseline expectation of decent work — not a regional add-on.", color:"var(--signal)" },
+  { k:"02", title:"Assess, then control the risk", body:"Occupational health-and-safety practice — reflected in frameworks like ISO 45001 — expects the risks of lone and remote work to be identified, assessed, and actively managed.", color:"var(--gold)" },
+  { k:"03", title:"Know they're safe — fast", body:"A credible system means someone knows a lone worker is OK, knows where they are, and knows quickly when they're not. Silence should never be the only signal.", color:"var(--safe)" },
 ];
 
 const HOW = [
-  { n: "01", title: "Worker starts a session", body: "Open the app, choose a check-in interval, and tap Start. The timer begins." },
-  { n: "02", title: "App checks in automatically", body: "Every interval, SafeSignal logs your location and marks you safe. You do nothing." },
-  { n: "03", title: "Miss a check-in — alerts fire", body: "Grace period first. Then SMS. Then a call. Then the next contact. Until someone responds." },
+  { n: "01", title: "Start a session", body: "Enter your name and site, add an emergency contact, choose a check-in interval, and tap Start. The countdown begins." },
+  { n: "02", title: "Check in each interval", body: "Before the timer hits zero, tap once to log the time and your GPS location and reset the countdown." },
+  { n: "03", title: "Miss one — the alarm sounds", body: "The device raises an overdue alarm and a grace period. The escalation preview shows exactly who would be alerted, and when." },
 ];
 
 const PRICING = [
@@ -68,17 +68,17 @@ const PRICING = [
     price: "$8",
     per: "worker / month",
     desc: "For independent trade workers who need personal protection.",
-    features: ["Check-in timer (15/30/60 min)", "GPS on every check-in", "2 emergency contacts", "Missed check-in alerts (SMS + call)", "7-day location history"],
-    cta: "Start free trial",
+    features: ["On-device check-in timer (15 / 30 / 60 min)", "GPS logged on every check-in", "Emergency contact + escalation preview", "Automated SMS + call escalation", "Session history & timestamped export"],
+    cta: "Join the waitlist",
     featured: false,
   },
   {
     name: "Team",
     price: "$14",
     per: "worker / month",
-    desc: "For companies with field workers. Manager dashboard included.",
-    features: ["Everything in Solo", "Manager dashboard (real-time)", "Unlimited emergency contacts", "Custom alert escalation rules", "Compliance report export (PDF)", "Admin controls + team management"],
-    cta: "Start free trial",
+    desc: "For companies with field workers. Supervisor dashboard included.",
+    features: ["Everything in Solo", "Live supervisor dashboard", "Unlimited emergency contacts", "Custom escalation rules", "Records export for compliance", "Admin controls + team management"],
+    cta: "Join the waitlist",
     featured: true,
   },
   {
@@ -87,10 +87,31 @@ const PRICING = [
     per: "",
     desc: "For large contractors and staffing companies with 50+ workers.",
     features: ["Everything in Team", "SSO + custom integrations", "API access", "Dedicated account manager", "SLA + uptime guarantee", "Custom compliance reporting"],
-    cta: "Contact sales",
+    cta: "Register interest",
     featured: false,
   },
 ];
+
+function FeatureIcon({ name }: { name: string }) {
+  const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const svg = { width: 22, height: 22, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+  switch (name) {
+    case "timer":
+      return (<svg {...svg}><circle cx="12" cy="13.5" r="7.5" {...p} /><path d="M12 13.5V9.5" {...p} /><path d="M9.5 2.5h5" {...p} /><path d="M12 5V2.5" {...p} /></svg>);
+    case "pin":
+      return (<svg {...svg}><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" {...p} /><circle cx="12" cy="10" r="2.5" {...p} /></svg>);
+    case "bell":
+      return (<svg {...svg}><path d="M18 8.5a6 6 0 1 0-12 0c0 6.5-2.5 8.5-2.5 8.5h17S18 15 18 8.5" {...p} /><path d="M10.2 20.5a2 2 0 0 0 3.6 0" {...p} /></svg>);
+    case "contact":
+      return (<svg {...svg}><rect x="3" y="5" width="18" height="14" rx="2" {...p} /><circle cx="9" cy="11" r="2" {...p} /><path d="M6 16c.4-1.5 1.6-2.3 3-2.3s2.6.8 3 2.3" {...p} /><path d="M14.5 10h3.5M14.5 13h3" {...p} /></svg>);
+    case "grid":
+      return (<svg {...svg}><rect x="3" y="3" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4" {...p} /></svg>);
+    case "doc":
+      return (<svg {...svg}><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" {...p} /><path d="M14 3v5h5" {...p} /><path d="M9 13h6M9 16.5h6" {...p} /></svg>);
+    default:
+      return null;
+  }
+}
 
 function useReveal() {
   useEffect(() => {
@@ -192,7 +213,7 @@ export default function Home() {
           </h1>
 
           <p className="reveal" style={{ fontSize:"clamp(1rem,1.8vw,1.2rem)",lineHeight:1.75,color:"rgba(255,255,255,0.55)",maxWidth:520,marginBottom:"clamp(1.5rem,4vw,2.5rem)" }}>
-            Automatic check-ins, escalating alerts, and real-time GPS for trade workers on the job alone. Because no one should work inside a live panel with nobody knowing where they are.
+            A dead-man&apos;s timer for people who work alone. On-device check-in countdowns, GPS logged on every check-in, and a clear escalation plan for the moment one is missed — because no one should work inside a live panel with nobody knowing where they are.
           </p>
 
           <div className="reveal" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
@@ -232,8 +253,8 @@ export default function Home() {
           <div className="features-grid">
             {FEATURES.map((f, i) => (
               <div key={f.title} className="card reveal-scale" style={{ padding:"clamp(1.5rem,3vw,2rem)", animationDelay:`${i*60}ms` }}>
-                <div style={{ width:44,height:44,borderRadius:12,background:`${f.color}14`,border:`1px solid ${f.color}28`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",marginBottom:16 }}>
-                  {f.icon}
+                <div style={{ width:44,height:44,borderRadius:12,background:`${f.color}14`,border:`1px solid ${f.color}28`,display:"flex",alignItems:"center",justifyContent:"center",color:f.color,marginBottom:16 }}>
+                  <FeatureIcon name={f.icon} />
                 </div>
                 <h3 style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"clamp(1rem,1.8vw,1.125rem)",letterSpacing:"0.04em",color:"var(--chalk)",marginBottom:8 }}>{f.title}</h3>
                 <p style={{ fontSize:"0.875rem",lineHeight:1.75,color:"rgba(255,255,255,0.4)" }}>{f.desc}</p>
@@ -281,23 +302,24 @@ export default function Home() {
               Why it matters
             </span>
             <h2 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,7vw,5.5rem)",lineHeight:0.9,letterSpacing:"0.01em",color:"var(--chalk)" }}>
-              LONE WORK IS<br />REGULATED WORK.
+              WORKING ALONE IS<br />A DUTY OF CARE.
             </h2>
-            <p style={{ fontFamily:"'Rajdhani',sans-serif",fontSize:"clamp(1rem,2vw,1.25rem)",color:"rgba(255,255,255,0.35)",marginTop:"0.75rem",fontWeight:500 }}>
-              Across major jurisdictions, protecting people who work alone is a legal duty — not a nice-to-have.
+            <p style={{ fontFamily:"'Rajdhani',sans-serif",fontSize:"clamp(1rem,2vw,1.25rem)",color:"rgba(255,255,255,0.35)",marginTop:"0.75rem",fontWeight:500,maxWidth:640 }}>
+              Everywhere people work alone, protecting them is a shared responsibility — a principle that runs through occupational safety standards the world over, not a box to tick in one country.
             </p>
           </div>
-          <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,320px),1fr))",gap:"1.25rem" }}>
-            {REGULATIONS.map((r, i) => (
-              <div key={r.region} className="card reveal-scale" style={{ padding:"2rem",transitionDelay:`${i*70}ms`,borderColor:`${r.color}22` }}>
-                <div style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:800,fontSize:"1.05rem",letterSpacing:"0.06em",color:"var(--chalk)",textTransform:"uppercase",marginBottom:6 }}>{r.region}</div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.66rem",letterSpacing:"0.05em",color:r.color,textTransform:"uppercase",marginBottom:"1rem",lineHeight:1.5 }}>{r.body}</div>
-                <p style={{ fontSize:"0.85rem",lineHeight:1.8,color:"rgba(255,255,255,0.5)" }}>{r.detail}</p>
+          <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,300px),1fr))",gap:"1.25rem" }}>
+            {DUTY.map((d, i) => (
+              <div key={d.k} className="card reveal-scale" style={{ padding:"2rem",transitionDelay:`${i*70}ms`,borderColor:`${d.color}22`,position:"relative",overflow:"hidden" }}>
+                <div aria-hidden style={{ position:"absolute",top:-8,right:14,fontFamily:"'Bebas Neue',sans-serif",fontSize:"4.5rem",lineHeight:1,color:`${d.color}14` }}>{d.k}</div>
+                <div style={{ width:28,height:2,background:d.color,opacity:0.7,marginBottom:16,borderRadius:1 }} />
+                <div style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:800,fontSize:"1.15rem",letterSpacing:"0.03em",color:"var(--chalk)",marginBottom:"0.75rem",position:"relative" }}>{d.title}</div>
+                <p style={{ fontSize:"0.85rem",lineHeight:1.8,color:"rgba(255,255,255,0.5)",position:"relative" }}>{d.body}</p>
               </div>
             ))}
           </div>
-          <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.62rem",letterSpacing:"0.08em",color:"rgba(255,255,255,0.25)",marginTop:"1.5rem",lineHeight:1.8 }}>
-            Regulatory frameworks are summarised here for context and change over time — always confirm the current requirements for your own jurisdiction.
+          <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"0.62rem",letterSpacing:"0.08em",color:"rgba(255,255,255,0.25)",marginTop:"1.5rem",lineHeight:1.8,maxWidth:760 }}>
+            SafeSignal is a safety tool, not legal advice. The specific rules for lone and remote work differ by country, industry, and role, and they change over time — always confirm the requirements that apply to your own location and work.
           </p>
         </div>
       </section>
@@ -328,17 +350,15 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Mock timer UI */}
-          <div className="reveal" style={{ marginTop:"clamp(3rem,7vw,6rem)",background:"var(--card)",border:"1px solid rgba(255,107,53,0.14)",borderRadius:20,padding:"clamp(2rem,5vw,3.5rem)",maxWidth:520,marginLeft:"auto",marginRight:"auto",textAlign:"center" }}>
-            <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.22em",color:"var(--stone)",textTransform:"uppercase",marginBottom:8 }}>Check-in in</p>
+          {/* Live tool preview */}
+          <div className="reveal" style={{ marginTop:"clamp(3rem,7vw,6rem)",background:"var(--card)",border:"1px solid rgba(255,107,53,0.14)",borderRadius:20,padding:"clamp(2rem,5vw,3.5rem)",maxWidth:520,marginLeft:"auto",marginRight:"auto",textAlign:"center",position:"relative" }}>
+            <span style={{ position:"absolute",top:14,right:14,fontFamily:"'JetBrains Mono',monospace",fontSize:9,letterSpacing:"0.14em",color:"var(--signal)",textTransform:"uppercase",background:"rgba(255,107,53,0.10)",border:"1px solid rgba(255,107,53,0.25)",borderRadius:100,padding:"3px 9px" }}>Live preview</span>
+            <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.22em",color:"var(--stone)",textTransform:"uppercase",marginBottom:8 }}>Next check-in in</p>
             <div className="timer-display">14:32</div>
             <p style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:"0.18em",color:"rgba(255,255,255,0.22)",textTransform:"uppercase",marginTop:12,marginBottom:24 }}>
               <span style={{ color:"var(--safe)" }}>● </span>Active · 30-min interval
             </p>
-            <div style={{ display:"flex",gap:10,justifyContent:"center" }}>
-              <button className="btn btn-safe" style={{ fontSize:"0.8rem",padding:"0.6rem 1.25rem" }}>Check in now</button>
-              <button className="btn btn-ghost" style={{ fontSize:"0.8rem",padding:"0.6rem 1.25rem" }}>SOS</button>
-            </div>
+            <a href="/checkin" className="btn btn-safe" style={{ fontSize:"0.8rem",padding:"0.6rem 1.5rem" }}>Open the check-in tool →</a>
           </div>
         </div>
       </section>
@@ -356,6 +376,9 @@ export default function Home() {
             <h2 style={{ fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(2.5rem,7vw,5.5rem)",lineHeight:0.9,letterSpacing:"0.01em",color:"var(--chalk)" }}>
               SIMPLE.<br />PER WORKER.
             </h2>
+            <p style={{ fontFamily:"'Rajdhani',sans-serif",fontSize:"clamp(1rem,2vw,1.2rem)",color:"rgba(255,255,255,0.35)",marginTop:"0.75rem",fontWeight:500,maxWidth:600 }}>
+              SafeSignal is in development. These plans describe the product we&apos;re building — nothing is charged today. The on-device check-in tool is free to try right now; automated SMS &amp; call escalation ships with the paid service.
+            </p>
           </div>
 
           <div className="pricing-grid">

@@ -68,6 +68,8 @@ export default function CheckInPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [workerName, setWorkerName] = useState("");
   const [siteName, setSiteName] = useState("");
+  const [emergencyName, setEmergencyName] = useState("");
+  const [emergencyPhone, setEmergencyPhone] = useState("");
   const [interval, setIntervalMin] = useState<15 | 30 | 60>(30);
   const [secondsLeft, setSecondsLeft] = useState(30 * 60);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
@@ -76,6 +78,7 @@ export default function CheckInPage() {
   const [sessionStart, setSessionStart] = useState<string>("");
   const [graceLeft, setGraceLeft] = useState(120);
   const [checkInFlash, setCheckInFlash] = useState(false);
+  const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const graceRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -158,7 +161,15 @@ export default function CheckInPage() {
   const persistSession = (entries: CheckIn[]) => {
     try {
       const stored = JSON.parse(localStorage.getItem("ss_sessions") || "[]");
-      const session = { worker: workerName, site: siteName, interval, checkIns: entries, sessionStart };
+      const session = {
+        worker: workerName,
+        site: siteName,
+        emergencyName,
+        emergencyPhone,
+        interval,
+        checkIns: entries,
+        sessionStart,
+      };
       const idx = Array.isArray(stored)
         ? stored.findIndex((s: { sessionStart?: string }) => s?.sessionStart === sessionStart)
         : -1;
@@ -198,6 +209,8 @@ export default function CheckInPage() {
     setPhase("setup");
     setWorkerName("");
     setSiteName("");
+    setEmergencyName("");
+    setEmergencyPhone("");
     setIntervalMin(30);
     setSecondsLeft(30 * 60);
     setCheckIns([]);
@@ -206,20 +219,67 @@ export default function CheckInPage() {
     setSessionStart("");
   };
 
-  const copyLog = () => {
+  // Build a plain-text, timestamped session report — used for both
+  // clipboard copy and file download so the two never drift apart.
+  const buildReport = () => {
+    const ended = new Date();
+    const durationMin = sessionStart
+      ? Math.round((ended.getTime() - new Date(sessionStart).getTime()) / 60000)
+      : 0;
     const lines = [
-      `SafeSignal Session Log`,
-      `Worker: ${workerName}`,
-      `Site: ${siteName}`,
-      `Interval: ${interval} min`,
-      `Started: ${sessionStart ? new Date(sessionStart).toLocaleString() : "—"}`,
-      `Total check-ins: ${checkIns.length}`,
+      `SAFESIGNAL — LONE WORKER SESSION REPORT`,
+      `============================================`,
+      `Generated:      ${ended.toLocaleString()}`,
       ``,
-      ...checkIns.map((c, i) =>
-        `#${i + 1}  ${new Date(c.time).toLocaleTimeString()}${c.lat != null ? `  GPS: ${c.lat.toFixed(5)},${c.lng?.toFixed(5)}` : ""}`
-      ),
+      `Worker:         ${workerName || "—"}`,
+      `Site / location:${siteName ? " " + siteName : " —"}`,
+      `Emergency contact: ${emergencyName ? emergencyName : "—"}${emergencyPhone ? ` (${emergencyPhone})` : ""}`,
+      ``,
+      `Check-in interval: ${interval} min`,
+      `Session started:   ${sessionStart ? new Date(sessionStart).toLocaleString() : "—"}`,
+      `Session ended:     ${ended.toLocaleString()}`,
+      `Duration:          ${durationMin} min`,
+      `Total check-ins:   ${checkIns.length}`,
+      ``,
+      `CHECK-IN LOG (most recent first)`,
+      `--------------------------------------------`,
+      ...(checkIns.length
+        ? checkIns.map((c, i) => {
+            const n = String(checkIns.length - i).padStart(2, "0");
+            const t = new Date(c.time).toLocaleString();
+            const gps = c.lat != null ? `  GPS ${c.lat.toFixed(5)}, ${c.lng?.toFixed(5)}` : `  GPS —`;
+            return `#${n}  ${t}${gps}`;
+          })
+        : ["(no check-ins recorded)"]),
+      ``,
+      `Report generated on-device by SafeSignal. Times are in this`,
+      `device's local timezone. Keep for your own records.`,
     ];
-    navigator.clipboard.writeText(lines.join("\n")).catch(() => {});
+    return lines.join("\n");
+  };
+
+  const copyLog = () => {
+    navigator.clipboard.writeText(buildReport()).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadSession = () => {
+    const stamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")
+      .replace("T", "_")
+      .slice(0, 19);
+    const safeName = (workerName || "session").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const blob = new Blob([buildReport()], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `safesignal-${safeName}-${stamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const fmt = (s: number) => {
@@ -266,7 +326,7 @@ export default function CheckInPage() {
                 <span style={{ color: "var(--signal)" }}>Check-In Session</span>
               </h1>
               <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.75, marginTop: 12 }}>
-                Fill in your details and choose a check-in interval. Miss one and this device raises an overdue alarm with a grace-period countdown to confirm you&apos;re OK.
+                Fill in your details and choose a check-in interval. Miss one and this device raises an overdue alarm with a grace-period countdown to confirm you&apos;re OK. Add an emergency contact to see exactly who that alarm would reach.
               </p>
             </div>
 
@@ -298,6 +358,34 @@ export default function CheckInPage() {
                   value={siteName}
                   onChange={(e) => setSiteName(e.target.value)}
                 />
+              </div>
+
+              {/* Emergency contact */}
+              <div style={{ marginBottom: "1.5rem", padding: "1.25rem", border: "1px solid rgba(255,107,53,0.14)", borderRadius: 12, background: "rgba(255,107,53,0.03)" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--signal)", marginBottom: 4 }}>
+                  Emergency Contact
+                </label>
+                <p style={{ fontSize: "0.75rem", color: "var(--mist)", lineHeight: 1.6, marginBottom: 12 }}>
+                  Who should be reached if you miss a check-in. Used only to show the escalation preview — it is stored on this device and never sent anywhere.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Contact name"
+                    value={emergencyName}
+                    onChange={(e) => setEmergencyName(e.target.value)}
+                    aria-label="Emergency contact name"
+                  />
+                  <input
+                    className="input"
+                    type="tel"
+                    placeholder="Phone number"
+                    value={emergencyPhone}
+                    onChange={(e) => setEmergencyPhone(e.target.value)}
+                    aria-label="Emergency contact phone"
+                  />
+                </div>
               </div>
 
               {/* Interval */}
@@ -612,6 +700,58 @@ export default function CheckInPage() {
               CHECK IN NOW — I&apos;M OK
             </button>
 
+            {/* ── Escalation preview ─────────────────────────── */}
+            {(() => {
+              const contact = emergencyName.trim() || "your emergency contact";
+              const phone = emergencyPhone.trim();
+              const steps = [
+                { at: "NOW", title: "Check-in missed", body: "The grace period is running. Confirming you're OK clears the alarm immediately — nothing is sent.", color: "var(--gold)" },
+                { at: "AT 0:00", title: "Grace period ends", body: "With no response, SafeSignal would begin the escalation below.", color: "var(--alert)" },
+                { at: "STEP 1", title: `Alert ${contact}`, body: `${contact}${phone ? ` (${phone})` : ""} would be sent your name, site, and last known GPS location.`, color: "var(--signal)" },
+                { at: "STEP 2", title: "Escalate further", body: "Still no response — escalation would continue to your next contact or supervisor until someone acknowledges.", color: "var(--signal)" },
+              ];
+              return (
+                <div style={{ margin: "1.75rem 0 1rem" }}>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--stone)", marginBottom: 12 }}>
+                    If you don&apos;t respond — what would happen
+                  </div>
+
+                  {/* Honesty banner */}
+                  <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(255,184,0,0.06)", border: "1px solid rgba(255,184,0,0.28)", borderRadius: 10, padding: "0.75rem 0.9rem", marginBottom: 14 }}>
+                    <span style={{ fontSize: "0.85rem", lineHeight: 1.4 }}>⚠</span>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.66rem", lineHeight: 1.65, color: "var(--gold)", letterSpacing: "0.02em" }}>
+                      PREVIEW ONLY — this version runs entirely on your device and does <strong>not</strong> send SMS, calls, or notifications. Automated dispatch is part of the SafeSignal service, which is in development.
+                    </span>
+                  </div>
+
+                  {/* Timeline */}
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {steps.map((s, i) => (
+                      <div key={i} style={{ display: "flex", gap: 14 }}>
+                        {/* rail */}
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <div style={{ width: 11, height: 11, borderRadius: "50%", background: s.color, boxShadow: `0 0 0 3px ${s.color}22`, flexShrink: 0, marginTop: 3 }} />
+                          {i < steps.length - 1 && <div style={{ width: 1, flex: 1, background: "rgba(255,255,255,0.10)", margin: "4px 0" }} />}
+                        </div>
+                        {/* content */}
+                        <div style={{ paddingBottom: i < steps.length - 1 ? 16 : 0 }}>
+                          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.58rem", letterSpacing: "0.14em", textTransform: "uppercase", color: s.color, marginBottom: 3 }}>{s.at}</div>
+                          <div style={{ fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, fontSize: "0.95rem", letterSpacing: "0.02em", color: "var(--chalk)", marginBottom: 3 }}>{s.title}</div>
+                          <div style={{ fontSize: "0.78rem", lineHeight: 1.6, color: "rgba(255,255,255,0.44)" }}>{s.body}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!emergencyName.trim() && (
+                    <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.62rem", lineHeight: 1.6, color: "var(--mist)", marginTop: 12, letterSpacing: "0.02em" }}>
+                      Tip: add an emergency contact at session setup to see their name in this preview.
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
             <button
               className="btn btn-ghost"
               onClick={endSession}
@@ -672,6 +812,12 @@ export default function CheckInPage() {
                 </div>
               ))}
             </div>
+            {emergencyName.trim() && (
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "0.9rem", marginTop: "0.2rem" }}>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mist)", marginBottom: 3 }}>Emergency Contact</div>
+                <div style={{ fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "var(--chalk)" }}>{emergencyName}{emergencyPhone ? ` · ${emergencyPhone}` : ""}</div>
+              </div>
+            )}
           </div>
 
           {/* Check-in log */}
@@ -708,11 +854,18 @@ export default function CheckInPage() {
           {/* Actions */}
           <div style={{ display: "flex", gap: 10, flexDirection: "column" }}>
             <button
+              onClick={downloadSession}
+              className="btn btn-safe"
+              style={{ width: "100%", justifyContent: "center" }}
+            >
+              ↓ Download Session Report (.txt)
+            </button>
+            <button
               onClick={copyLog}
               className="btn btn-ghost"
               style={{ width: "100%", justifyContent: "center" }}
             >
-              Copy Log to Clipboard
+              {copied ? "✓ Copied to Clipboard" : "Copy Report to Clipboard"}
             </button>
             <button
               onClick={startNew}
@@ -722,6 +875,10 @@ export default function CheckInPage() {
               Start New Session
             </button>
           </div>
+          <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.62rem", lineHeight: 1.7, color: "var(--mist)", marginTop: 14, textAlign: "center", letterSpacing: "0.02em" }}>
+            The report is generated on your device. Session history is kept in this
+            browser only (localStorage) — it is not uploaded anywhere.
+          </p>
         </div>
       </div>
     </>
