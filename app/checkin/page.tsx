@@ -383,7 +383,7 @@ export default function CheckInPage() {
                 <p style={{ fontSize: "0.75rem", color: "var(--mist)", lineHeight: 1.6, marginBottom: 12 }}>
                   Who should be reached if you miss a check-in. Used only to show the escalation preview — it is stored on this device and never sent anywhere.
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
                   <input
                     className="input"
                     type="text"
