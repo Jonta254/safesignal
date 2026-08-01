@@ -64,6 +64,21 @@ function NavBar({ activeHref }: { activeHref: string }) {
   );
 }
 
+function CIcon({ name, size = 16 }: { name: string; size?: number }) {
+  const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const svg = { width: size, height: size, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+  switch (name) {
+    case "pin":
+      return (<svg {...svg}><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" {...p} /><circle cx="12" cy="10" r="2.4" {...p} /></svg>);
+    case "sat":
+      return (<svg {...svg}><path d="M4 13a8 8 0 0 1 7 7" {...p} /><path d="M4 17a4 4 0 0 1 3 3" {...p} /><circle cx="5" cy="20" r="1.1" fill="currentColor" stroke="none" /><path d="M13.5 3.2 17 6.7l-3 3-3.5-3.5 3-3Z" {...p} /></svg>);
+    case "warn":
+      return (<svg {...svg}><path d="M12 3.6 21 20H3L12 3.6Z" {...p} /><path d="M12 10v4" {...p} /><path d="M12 17h.01" {...p} /></svg>);
+    default:
+      return null;
+  }
+}
+
 export default function CheckInPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [workerName, setWorkerName] = useState("");
@@ -445,7 +460,7 @@ export default function CheckInPage() {
                     transition: "all 180ms",
                   }}
                 >
-                  <span>{gpsStatus === "loading" ? "📡" : gpsStatus === "ok" ? "✓" : gpsStatus === "denied" ? "✗" : "📍"}</span>
+                  <span style={{ display: "flex", alignItems: "center" }}>{gpsStatus === "loading" ? <CIcon name="sat" size={16} /> : gpsStatus === "ok" ? "✓" : gpsStatus === "denied" ? "✕" : <CIcon name="pin" size={16} />}</span>
                   {gpsStatus === "idle" && "Get Location"}
                   {gpsStatus === "loading" && "Acquiring GPS..."}
                   {gpsStatus === "ok" && gpsCoords && `${gpsCoords.lat.toFixed(4)}, ${gpsCoords.lng.toFixed(4)}`}
@@ -634,7 +649,7 @@ export default function CheckInPage() {
                   50%{box-shadow:0 0 40px 8px rgba(255,59,59,0.12)}
                 }
               `}</style>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>⚠</div>
+              <div style={{ display: "flex", justifyContent: "center", color: "var(--alert)", marginBottom: "0.75rem" }}><CIcon name="warn" size={46} /></div>
               <h1 style={{
                 fontFamily: "'Bebas Neue',sans-serif",
                 fontSize: "clamp(2rem,7vw,3.5rem)",
@@ -670,7 +685,7 @@ export default function CheckInPage() {
                 background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
                 borderRadius: 10, padding: "0.75rem 1rem", marginBottom: "1.25rem",
               }}>
-                <span style={{ fontSize: "0.875rem" }}>📍</span>
+                <span style={{ display: "flex", color: "var(--stone)" }}><CIcon name="pin" size={15} /></span>
                 <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.75rem", color: "var(--stone)" }}>
                   Last known: {gpsCoords.lat.toFixed(5)}, {gpsCoords.lng.toFixed(5)}
                 </span>
@@ -717,8 +732,8 @@ export default function CheckInPage() {
                   </div>
 
                   {/* Honesty banner */}
-                  <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(255,184,0,0.06)", border: "1px solid rgba(255,184,0,0.28)", borderRadius: 10, padding: "0.75rem 0.9rem", marginBottom: 14 }}>
-                    <span style={{ fontSize: "0.85rem", lineHeight: 1.4 }}>⚠</span>
+                  <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(224,166,60,0.07)", border: "1px solid rgba(224,166,60,0.30)", borderRadius: 10, padding: "0.75rem 0.9rem", marginBottom: 14 }}>
+                    <span style={{ display: "flex", color: "var(--gold)", flexShrink: 0, marginTop: 1 }}><CIcon name="warn" size={15} /></span>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "0.66rem", lineHeight: 1.65, color: "var(--gold)", letterSpacing: "0.02em" }}>
                       PREVIEW ONLY — this version runs entirely on your device and does <strong>not</strong> send SMS, calls, or notifications. Automated dispatch is part of the SafeSignal service, which is in development.
                     </span>

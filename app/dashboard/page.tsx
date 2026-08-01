@@ -12,6 +12,15 @@ function Logo() {
   );
 }
 
+function Pin() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ flexShrink: 0, verticalAlign: "-1px", marginRight: 5 }}>
+      <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
 type WorkerStatus = "safe" | "active" | "overdue" | "offline";
 
 const DEMO_WORKERS = [
@@ -23,9 +32,9 @@ const DEMO_WORKERS = [
 
 const STATUS = {
   safe:    { label:"Safe",    color:"#34D399", bg:"rgba(52,211,153,0.10)" },
-  active:  { label:"Active",  color:"#00C8FF", bg:"rgba(0,200,255,0.10)"  },
+  active:  { label:"Active",  color:"#59A6C4", bg:"rgba(89,166,196,0.12)" },
   overdue: { label:"Overdue", color:"#FF3B3B", bg:"rgba(255,59,59,0.10)"  },
-  offline: { label:"Offline", color:"#8880A8", bg:"rgba(136,128,168,0.10)" },
+  offline: { label:"Offline", color:"#948E9C", bg:"rgba(148,142,156,0.10)" },
 };
 
 type Session = { worker: string; site: string; interval: number; checkIns: { time: string; lat?: number; lng?: number }[]; sessionStart: string };
@@ -47,7 +56,7 @@ export default function DashboardPage() {
     <>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
-        :root{--void:#08030A;--surface:#0F0812;--card:#130B16;--border:rgba(255,255,255,0.07);--chalk:#F2F0FC;--stone:#8880A8;--mist:#50485A;--signal:#FF6B35;--safe:#34D399;--alert:#FF3B3B;--cyan:#00C8FF;--gold:#FFB800}
+        :root{--void:#08030A;--surface:#0E0910;--card:#140E17;--border:rgba(255,255,255,0.08);--chalk:#F1F1F4;--stone:#948E9C;--mist:#5B5661;--signal:#FF6B35;--safe:#34D399;--alert:#FF3B3B;--cyan:#59A6C4;--gold:#E0A63C}
         body{background:var(--void);color:var(--chalk);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
         .nav{position:fixed;top:0;left:0;right:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4vw,2.5rem);background:rgba(8,3,10,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px)}
         .card{background:var(--card);border:1px solid var(--border);border-radius:12px}
@@ -74,7 +83,7 @@ export default function DashboardPage() {
         <div style={{ background:"rgba(255,255,255,0.015)", borderBottom:"1px solid var(--border)", padding:"2.5rem clamp(1rem,4vw,2.5rem)" }}>
           <div style={{ maxWidth:1100, margin:"0 auto" }}>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.68rem", letterSpacing:"0.16em", color:"var(--signal)", marginBottom:10 }}>LONE WORKER DASHBOARD</div>
-            <h1 style={{ fontSize:"clamp(1.6rem,4vw,2.4rem)", fontWeight:700, marginBottom:8 }}>Worker Status</h1>
+            <h1 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(2.2rem,5vw,3.2rem)", fontWeight:400, letterSpacing:"0.01em", lineHeight:0.95, marginBottom:8 }}>Worker Status</h1>
             <p style={{ fontSize:"0.875rem", color:"var(--stone)" }}>A preview of the supervisor team view. The crew below is sample data showing how live status appears — your own check-in sessions appear beneath it.</p>
           </div>
         </div>
@@ -117,7 +126,7 @@ export default function DashboardPage() {
                       <span style={{ fontWeight:600, fontSize:"0.92rem" }}>{w.name}</span>
                       <span style={{ fontSize:"0.72rem", color:"var(--mist)" }}>{w.role}</span>
                     </div>
-                    <div style={{ fontSize:"0.78rem", color:"var(--stone)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>📍 {w.site}</div>
+                    <div style={{ fontSize:"0.78rem", color:"var(--stone)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", display:"flex", alignItems:"center" }}><Pin />{w.site}</div>
                   </div>
 
                   {/* Last check-in */}
@@ -150,7 +159,7 @@ export default function DashboardPage() {
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:16 }}>
                     <div>
                       <div style={{ fontSize:"0.88rem", fontWeight:600, marginBottom:3 }}>{s.worker}</div>
-                      {s.site && <div style={{ fontSize:"0.78rem", color:"var(--stone)" }}>📍 {s.site}</div>}
+                      {s.site && <div style={{ fontSize:"0.78rem", color:"var(--stone)", display:"flex", alignItems:"center" }}><Pin />{s.site}</div>}
                     </div>
                     <div style={{ textAlign:"right", flexShrink:0 }}>
                       <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:"var(--safe)", marginBottom:3 }}>{s.checkIns.length} check-ins</div>

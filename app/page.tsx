@@ -13,7 +13,7 @@ const FEATURES = [
     icon: "pin",
     title: "GPS on every check-in",
     desc: "Each check-in records your exact coordinates next to the timestamp, so your session log shows where you were — not just that you checked in.",
-    color: "var(--cyan)",
+    color: "var(--steel)",
   },
   {
     icon: "bell",
@@ -25,35 +25,35 @@ const FEATURES = [
     icon: "contact",
     title: "Emergency contact",
     desc: "Name the person who should be reached if you go quiet. Stored on your device and shown in the escalation preview, so you know the plan before you ever need it.",
-    color: "var(--gold)",
+    color: "var(--signal)",
   },
   {
     icon: "grid",
     title: "Supervisor view",
     desc: "A team dashboard of who's checked in, who's late, and who's overdue — shown with clearly-labelled sample data as a preview of the supervisor experience.",
-    color: "var(--safe)",
+    color: "var(--steel)",
   },
   {
     icon: "doc",
     title: "Session export",
     desc: "End a session and download a timestamped report of every check-in, with GPS and duration — plain text you can keep for your own records.",
-    color: "var(--cyan)",
+    color: "var(--safe)",
   },
 ];
 
 const INDUSTRIES = [
-  { icon:"⚡", name:"Electrical", detail:"Panel work, live circuits, confined plant rooms — exactly where no one should be alone and without a check-in timer.", color:"var(--gold)" },
-  { icon:"🔩", name:"Mechanical & HVAC", detail:"Rooftop plant, confined boiler rooms, pressurised systems. One failure with no one watching is one too many.", color:"var(--signal)" },
-  { icon:"🏗️", name:"Construction", detail:"Working at height, below grade, in partially built structures. Site safety ends where mobile signal does — unless you have a system.", color:"var(--cyan)" },
-  { icon:"🛢️", name:"Oil & Gas", detail:"Remote pipeline patrols, substation checks, tank farms — often hours from the nearest help if something goes wrong.", color:"var(--safe)" },
-  { icon:"🚿", name:"Utilities", detail:"Water treatment, substations, remote pump stations visited solo — routine work that turns serious the moment no one knows you're in trouble.", color:"var(--stone)" },
-  { icon:"🔒", name:"Security & Facilities", detail:"Night patrols, single-guard buildings, remote site checks. Your guard shouldn't have to rely on a walkie-talkie from 1994.", color:"var(--alert)" },
+  { icon:"bolt", name:"Electrical", detail:"Panel work, live circuits, confined plant rooms — exactly where no one should be alone and without a check-in timer.", color:"var(--signal)" },
+  { icon:"nut", name:"Mechanical & HVAC", detail:"Rooftop plant, confined boiler rooms, pressurised systems. One failure with no one watching is one too many.", color:"var(--steel)" },
+  { icon:"crane", name:"Construction", detail:"Working at height, below grade, in partially built structures. Site safety ends where mobile signal does — unless you have a system.", color:"var(--signal)" },
+  { icon:"flame", name:"Oil & Gas", detail:"Remote pipeline patrols, substation checks, tank farms — often hours from the nearest help if something goes wrong.", color:"var(--steel)" },
+  { icon:"drop", name:"Utilities", detail:"Water treatment, substations, remote pump stations visited solo — routine work that turns serious the moment no one knows you're in trouble.", color:"var(--signal)" },
+  { icon:"shield", name:"Security & Facilities", detail:"Night patrols, single-guard buildings, remote site checks. Your guard shouldn't have to rely on a walkie-talkie from 1994.", color:"var(--steel)" },
 ];
 
 const DUTY = [
   { k:"01", title:"A duty of care", body:"Wherever people work alone, employers carry a responsibility to protect them from foreseeable harm. It's a baseline expectation of decent work — not a regional add-on.", color:"var(--signal)" },
-  { k:"02", title:"Assess, then control the risk", body:"Occupational health-and-safety practice — reflected in frameworks like ISO 45001 — expects the risks of lone and remote work to be identified, assessed, and actively managed.", color:"var(--gold)" },
-  { k:"03", title:"Know they're safe — fast", body:"A credible system means someone knows a lone worker is OK, knows where they are, and knows quickly when they're not. Silence should never be the only signal.", color:"var(--safe)" },
+  { k:"02", title:"Assess, then control the risk", body:"Occupational health-and-safety practice — reflected in frameworks like ISO 45001 — expects the risks of lone and remote work to be identified, assessed, and actively managed.", color:"var(--signal)" },
+  { k:"03", title:"Know they're safe — fast", body:"A credible system means someone knows a lone worker is OK, knows where they are, and knows quickly when they're not. Silence should never be the only signal.", color:"var(--signal)" },
 ];
 
 const HOW = [
@@ -108,6 +108,27 @@ function FeatureIcon({ name }: { name: string }) {
       return (<svg {...svg}><rect x="3" y="3" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4" {...p} /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4" {...p} /></svg>);
     case "doc":
       return (<svg {...svg}><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" {...p} /><path d="M14 3v5h5" {...p} /><path d="M9 13h6M9 16.5h6" {...p} /></svg>);
+    default:
+      return null;
+  }
+}
+
+function IndustryIcon({ name }: { name: string }) {
+  const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const svg = { width: 22, height: 22, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+  switch (name) {
+    case "bolt":
+      return (<svg {...svg}><path d="M13 2.5 5 13.5h5.5L9.5 21.5 19 9.5h-6l1.5-7Z" {...p} /></svg>);
+    case "nut":
+      return (<svg {...svg}><path d="M8.5 3.2h7l4 6.8-4 6.8h-7l-4-6.8 4-6.8Z" {...p} /><circle cx="12" cy="10" r="3.1" {...p} /></svg>);
+    case "crane":
+      return (<svg {...svg}><path d="M5 21h6" {...p} /><path d="M8 21V4l11 2.5" {...p} /><path d="M8 4 4 8" {...p} /><path d="M19 6.5V10" {...p} /><path d="M19 10v0M14.5 5.6V8" {...p} /></svg>);
+    case "flame":
+      return (<svg {...svg}><path d="M12 3c2.6 3.4 4 5.7 4 8.4a4 4 0 1 1-8 0c0-1 .4-2 1-3 .5 1.1 1.2 1.6 2.2 1.6-1.2-2.1-1-4.8.8-7Z" {...p} /></svg>);
+    case "drop":
+      return (<svg {...svg}><path d="M12 3.2s6 6.2 6 10.3a6 6 0 0 1-12 0C6 9.4 12 3.2 12 3.2Z" {...p} /><path d="M9.4 13.6a2.6 2.6 0 0 0 2.6 2.6" {...p} /></svg>);
+    case "shield":
+      return (<svg {...svg}><path d="M12 3.2l7 2.8v5.4c0 4.4-3 7.4-7 8.8-4-1.4-7-4.4-7-8.8V6l7-2.8Z" {...p} /><path d="M9.2 12l2 2 3.6-3.8" {...p} /></svg>);
     default:
       return null;
   }
@@ -252,7 +273,7 @@ export default function Home() {
 
           <div className="features-grid">
             {FEATURES.map((f, i) => (
-              <div key={f.title} className="card reveal-scale" style={{ padding:"clamp(1.5rem,3vw,2rem)", animationDelay:`${i*60}ms` }}>
+              <div key={f.title} className="card reveal-scale" style={{ padding:"clamp(1.5rem,3vw,2rem)", transitionDelay:`${i*60}ms` }}>
                 <div style={{ width:44,height:44,borderRadius:12,background:`${f.color}14`,border:`1px solid ${f.color}28`,display:"flex",alignItems:"center",justifyContent:"center",color:f.color,marginBottom:16 }}>
                   <FeatureIcon name={f.icon} />
                 </div>
@@ -281,7 +302,7 @@ export default function Home() {
             {INDUSTRIES.map((ind, i) => (
               <div key={ind.name} className="card reveal-scale" style={{ padding:"1.75rem",transitionDelay:`${i*55}ms` }}>
                 <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:"1rem" }}>
-                  <div style={{ width:40,height:40,borderRadius:10,background:`${ind.color}14`,border:`1px solid ${ind.color}28`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0 }}>{ind.icon}</div>
+                  <div style={{ width:40,height:40,borderRadius:10,background:`${ind.color}14`,border:`1px solid ${ind.color}28`,display:"flex",alignItems:"center",justifyContent:"center",color:ind.color,flexShrink:0 }}><IndustryIcon name={ind.icon} /></div>
                   <span style={{ fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:"1.05rem",letterSpacing:"0.06em",color:"var(--chalk)",textTransform:"uppercase" }}>{ind.name}</span>
                 </div>
                 <p style={{ fontSize:"0.8rem",lineHeight:1.75,color:"rgba(255,255,255,0.38)" }}>{ind.detail}</p>
