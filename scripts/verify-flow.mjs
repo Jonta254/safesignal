@@ -1,0 +1,17 @@
+import { chromium } from "playwright";
+import fs from "node:fs/promises";
+import path from "node:path";
+const browser=await chromium.launch({headless:true,executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"});
+const context=await browser.newContext({viewport:{width:390,height:844},permissions:[]});
+const page=await context.newPage(); const errors=[]; const flow=[];
+page.on("console",m=>{if(m.type()==="error")errors.push(`console: ${m.text()}`)}); page.on("pageerror",e=>errors.push(`page: ${e.message}`)); page.on("dialog",d=>d.accept());
+await page.goto("http://localhost:3006/checkin",{waitUntil:"domcontentloaded",timeout:30000});
+await page.getByPlaceholder("Your full name").waitFor({state:"visible",timeout:15000});
+await page.getByPlaceholder("Your full name").fill("Amina Njoroge"); await page.getByPlaceholder("Building, site, or zone").fill("West plant room"); await page.getByPlaceholder("Contact name").fill("David Mwangi"); await page.getByPlaceholder("Phone number").fill("+254700000000");
+await page.getByRole("button",{name:/start protected session/i}).click(); await page.getByText("Session active").waitFor({timeout:10000}); flow.push({step:"start",ok:true});
+await page.getByRole("button",{name:/check in now/i}).click(); await page.waitForTimeout(700); flow.push({step:"check-in",ok:await page.getByText("Recent confirmations").isVisible()});
+await page.getByRole("button",{name:/refresh precise location|location unavailable/i}).click(); await page.waitForTimeout(700); flow.push({step:"gps-denied",ok:await page.getByText(/session remains active without gps/i).isVisible()});
+await page.getByRole("button",{name:/end session/i}).click(); await page.getByText("Session complete").waitFor({timeout:10000}); flow.push({step:"end-confirm-complete",ok:true});
+await page.screenshot({path:path.join(process.cwd(),"deliverables","screenshots","checkin-complete-mobile.png"),fullPage:true});
+await fs.writeFile(path.join(process.cwd(),"deliverables","screenshots","verification.json"),JSON.stringify({flow,errors},null,2));
+console.log(JSON.stringify({flow,errors},null,2)); await browser.close();

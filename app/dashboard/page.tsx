@@ -1,209 +1,45 @@
 "use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import {useEffect,useMemo,useState} from "react";
+import {AlertTriangle,Check,ChevronDown,Clock3,Download,FileWarning,HardDrive,MapPin,Phone,Radio,RefreshCw,Search,ShieldCheck,Trash2,UserRound,Users} from "lucide-react";
+import {SessionHistoryReadResult,StoredSession,deleteStoredSession,readSessionHistoryResult} from "@/lib/session";
+import styles from "./dashboard.module.css";
+import {SiteFooter} from "@/components/site-footer";
 
-function Logo() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#1A0A08"/>
-      <path d="M16 4L6 8v7c0 6 4.2 11.2 10 12.8C21.8 26.2 26 21 26 15V8L16 4z" fill="rgba(255,107,53,0.15)" stroke="#FF6B35" strokeWidth="1.3"/>
-      <path d="M10 17h2.5l1.5-3 2.5 6 2-4.5 1 1.5H22" stroke="#FF6B35" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-function Pin() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ flexShrink: 0, verticalAlign: "-1px", marginRight: 5 }}>
-      <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-      <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-type WorkerStatus = "safe" | "active" | "overdue" | "offline";
-
-const DEMO_WORKERS = [
-  { id:"w1", name:"Marcus Webb",    role:"Electrician",   site:"Plant Room B – Level 2",     status:"active"  as WorkerStatus, lastCheckIn:"8 min ago",  interval:30, checkIns:4 },
-  { id:"w2", name:"Sarah Okafor",   role:"HVAC Tech",     site:"Rooftop Unit – Tower A",     status:"overdue" as WorkerStatus, lastCheckIn:"52 min ago", interval:30, checkIns:2 },
-  { id:"w3", name:"Dean Mitchell",  role:"Mechanical",    site:"Basement Boiler Room",       status:"safe"    as WorkerStatus, lastCheckIn:"4 min ago",  interval:15, checkIns:11 },
-  { id:"w4", name:"Priya Nambiar",  role:"Safety Tech",   site:"Substation 3B, North Site",  status:"active"  as WorkerStatus, lastCheckIn:"12 min ago", interval:60, checkIns:1 },
+type Status="active"|"safe"|"due-soon"|"overdue"|"offline";
+type Worker={id:string;name:string;initials:string;role:string;site:string;location:string;status:Status;lastCheckIn:string;nextCheckIn:string;interval:string;checkIns:number;hasContact:boolean;overdueBy?:string;contact?:string;escalation?:string};
+const sampleWorkers:Worker[]=[
+ {id:"SS-1042",name:"Marcus Webb",initials:"MW",role:"Electrical technician",site:"Northbank Energy",location:"Plant room B · Level 2",status:"active",lastCheckIn:"8 min ago",nextCheckIn:"in 22 min",interval:"30 min",checkIns:3,hasContact:true},
+ {id:"SS-0971",name:"Sarah Okafor",initials:"SO",role:"HVAC specialist",site:"Meridian Tower",location:"Rooftop unit · Zone A",status:"overdue",lastCheckIn:"52 min ago",nextCheckIn:"10:24",interval:"30 min",checkIns:2,hasContact:true,overdueBy:"22 min",contact:"Ibrahim Okafor · +254 700 555 018",escalation:"Grace period ended · supervisor review"},
+ {id:"SS-1108",name:"Dean Mitchell",initials:"DM",role:"Mechanical engineer",site:"Civic Waterworks",location:"Boiler room · Basement 1",status:"safe",lastCheckIn:"4 min ago",nextCheckIn:"in 26 min",interval:"30 min",checkIns:5,hasContact:true},
+ {id:"SS-0884",name:"Priya Nambiar",initials:"PN",role:"Safety technician",site:"North Grid",location:"Substation 3B",status:"due-soon",lastCheckIn:"27 min ago",nextCheckIn:"in 3 min",interval:"30 min",checkIns:4,hasContact:true},
+ {id:"SS-1024",name:"Jon Bell",initials:"JB",role:"Facilities officer",site:"Meridian Tower",location:"East service wing",status:"offline",lastCheckIn:"Shift ended",nextCheckIn:"—",interval:"30 min",checkIns:6,hasContact:false},
+ {id:"SS-1137",name:"Elena Torres",initials:"ET",role:"Pump technician",site:"West Pump Station",location:"Pump hall · Bay 2",status:"active",lastCheckIn:"11 min ago",nextCheckIn:"in 19 min",interval:"30 min",checkIns:2,hasContact:true}
 ];
-
-const STATUS = {
-  safe:    { label:"Safe",    color:"#34D399", bg:"rgba(52,211,153,0.10)" },
-  active:  { label:"Active",  color:"#59A6C4", bg:"rgba(89,166,196,0.12)" },
-  overdue: { label:"Overdue", color:"#FF3B3B", bg:"rgba(255,59,59,0.10)"  },
-  offline: { label:"Offline", color:"#948E9C", bg:"rgba(148,142,156,0.10)" },
-};
-
-type Session = { worker: string; site: string; interval: number; checkIns: { time: string; lat?: number; lng?: number }[]; sessionStart: string };
-
-export default function DashboardPage() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("ss_sessions");
-      if (raw) setSessions(JSON.parse(raw));
-    } catch {}
-  }, []);
-
-  const overdue = DEMO_WORKERS.filter(w => w.status === "overdue").length;
-  const safe    = DEMO_WORKERS.filter(w => w.status === "safe" || w.status === "active").length;
-
-  return (
-    <>
-      <style>{`
-        *{box-sizing:border-box;margin:0;padding:0}
-        :root{--void:#08030A;--surface:#0E0910;--card:#140E17;--border:rgba(255,255,255,0.08);--chalk:#F1F1F4;--stone:#948E9C;--mist:#5B5661;--signal:#FF6B35;--safe:#34D399;--alert:#FF3B3B;--cyan:#59A6C4;--gold:#E0A63C}
-        body{background:var(--void);color:var(--chalk);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
-        .nav{position:fixed;top:0;left:0;right:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4vw,2.5rem);background:rgba(8,3,10,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px)}
-        .card{background:var(--card);border:1px solid var(--border);border-radius:12px}
-        @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
-        .pulse{animation:pulse-dot 1.4s ease-in-out infinite}
-        .worker-row{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border);transition:background 160ms}
-        .worker-row:hover{background:rgba(255,255,255,0.015)}
-        .worker-row:last-child{border-bottom:none}
-      `}</style>
-
-      <nav className="nav">
-        <Link href="/" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
-          <Logo />
-          <span style={{ fontWeight:700, fontSize:"0.95rem", color:"var(--chalk)" }}>Safe<span style={{ color:"var(--signal)" }}>Signal</span></span>
-        </Link>
-        <div style={{ display:"flex", gap:24, alignItems:"center" }}>
-          <Link href="/dashboard" style={{ fontSize:"0.82rem", color:"var(--signal)", textDecoration:"none", fontWeight:600 }}>Dashboard</Link>
-          <Link href="/checkin" style={{ fontSize:"0.82rem", color:"var(--stone)", textDecoration:"none" }}>Check In</Link>
-        </div>
-      </nav>
-
-      <main style={{ paddingTop:62, minHeight:"100vh" }}>
-        {/* Header */}
-        <div style={{ background:"rgba(255,255,255,0.015)", borderBottom:"1px solid var(--border)", padding:"2.5rem clamp(1rem,4vw,2.5rem)" }}>
-          <div style={{ maxWidth:1100, margin:"0 auto" }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.68rem", letterSpacing:"0.16em", color:"var(--signal)", marginBottom:10 }}>LONE WORKER DASHBOARD</div>
-            <h1 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(2.2rem,5vw,3.2rem)", fontWeight:400, letterSpacing:"0.01em", lineHeight:0.95, marginBottom:8 }}>Worker Status</h1>
-            <p style={{ fontSize:"0.875rem", color:"var(--stone)" }}>A preview of the supervisor team view. The crew below is sample data showing how live status appears — your own check-in sessions appear beneath it.</p>
-          </div>
-        </div>
-
-        <div style={{ maxWidth:1100, margin:"0 auto", padding:"clamp(1.5rem,3vw,2.5rem) clamp(1rem,4vw,2.5rem)" }}>
-
-          {/* Stats row */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:12, marginBottom:28 }}>
-            {[
-              { label:"Active Sessions", val: DEMO_WORKERS.length.toString(), color:"var(--cyan)" },
-              { label:"Overdue",         val: overdue.toString(),              color:"var(--alert)" },
-              { label:"Safe & Checked",  val: safe.toString(),                 color:"var(--safe)" },
-              { label:"Your Sessions",   val: sessions.length.toString(),      color:"var(--gold)" },
-            ].map(({ label, val, color }) => (
-              <div key={label} className="card" style={{ padding:"20px 22px" }}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.65rem", letterSpacing:"0.12em", color:"var(--mist)", marginBottom:10 }}>{label.toUpperCase()}</div>
-                <div style={{ fontSize:"2rem", fontWeight:700, fontFamily:"'JetBrains Mono',monospace", color }}>{val}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Worker table */}
-          <div className="card" style={{ marginBottom:28, overflow:"hidden" }}>
-            <div style={{ padding:"16px 20px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-              <span style={{ fontWeight:700, fontSize:"0.95rem" }}>Active Workers</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.6rem", letterSpacing:"0.1em", color:"var(--signal)", background:"rgba(255,107,53,0.1)", border:"1px solid rgba(255,107,53,0.25)", padding:"3px 10px", borderRadius:100 }}>SAMPLE DATA</span>
-            </div>
-            {DEMO_WORKERS.map((w) => {
-              const s = STATUS[w.status];
-              return (
-                <div key={w.id} className="worker-row">
-                  {/* Avatar */}
-                  <div style={{ width:40, height:40, borderRadius:"50%", background:`rgba(${w.status === "overdue" ? "255,59,59" : "255,107,53"},0.15)`, border:`1px solid ${s.color}30`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:"0.82rem", color:s.color, flexShrink:0 }}>
-                    {w.name.split(" ").map(n => n[0]).join("")}
-                  </div>
-
-                  {/* Info */}
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
-                      <span style={{ fontWeight:600, fontSize:"0.92rem" }}>{w.name}</span>
-                      <span style={{ fontSize:"0.72rem", color:"var(--mist)" }}>{w.role}</span>
-                    </div>
-                    <div style={{ fontSize:"0.78rem", color:"var(--stone)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", display:"flex", alignItems:"center" }}><Pin />{w.site}</div>
-                  </div>
-
-                  {/* Last check-in */}
-                  <div style={{ textAlign:"right", flexShrink:0 }}>
-                    <div style={{ fontSize:"0.78rem", color:"var(--mist)", marginBottom:4 }}>Last check-in</div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.8rem", color: w.status === "overdue" ? "var(--alert)" : "var(--chalk)" }}>{w.lastCheckIn}</div>
-                  </div>
-
-                  {/* Status */}
-                  <div style={{ flexShrink:0, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, padding:"3px 10px", borderRadius:100, background:s.bg, border:`1px solid ${s.color}40` }}>
-                      <div style={{ width:6, height:6, borderRadius:"50%", background:s.color, flexShrink:0 }} className={w.status === "overdue" ? "pulse" : ""} />
-                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.65rem", letterSpacing:"0.1em", color:s.color }}>{s.label.toUpperCase()}</span>
-                    </div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.62rem", color:"var(--mist)" }}>{w.interval} min interval · {w.checkIns} check-ins</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Your check-in history */}
-          {sessions.length > 0 && (
-            <div className="card" style={{ marginBottom:28, overflow:"hidden" }}>
-              <div style={{ padding:"16px 20px", borderBottom:"1px solid var(--border)" }}>
-                <span style={{ fontWeight:700, fontSize:"0.95rem" }}>Your Recent Sessions</span>
-              </div>
-              {sessions.slice(0, 5).map((s, i) => (
-                <div key={i} style={{ padding:"14px 20px", borderBottom: i < Math.min(sessions.length, 5) - 1 ? "1px solid var(--border)" : "none" }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:16 }}>
-                    <div>
-                      <div style={{ fontSize:"0.88rem", fontWeight:600, marginBottom:3 }}>{s.worker}</div>
-                      {s.site && <div style={{ fontSize:"0.78rem", color:"var(--stone)", display:"flex", alignItems:"center" }}><Pin />{s.site}</div>}
-                    </div>
-                    <div style={{ textAlign:"right", flexShrink:0 }}>
-                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:"var(--safe)", marginBottom:3 }}>{s.checkIns.length} check-ins</div>
-                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.65rem", color:"var(--mist)" }}>{s.interval} min interval</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Alert summary */}
-          {overdue > 0 && (
-            <div style={{ padding:"20px 24px", borderRadius:12, border:"1px solid rgba(255,59,59,0.3)", background:"rgba(255,59,59,0.06)", marginBottom:28 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
-                <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--alert)" }} className="pulse" />
-                <span style={{ fontWeight:700, color:"var(--alert)", fontSize:"0.92rem" }}>Alert: {overdue} worker{overdue > 1 ? "s" : ""} overdue</span>
-              </div>
-              <p style={{ fontSize:"0.82rem", color:"rgba(255,255,255,0.5)", marginBottom:14 }}>
-                Sarah Okafor — HVAC Tech — Rooftop Unit Tower A. Last check-in 52 minutes ago, past the grace period. In the full service, escalation to their emergency contact would begin here.
-              </p>
-              <div style={{ display:"flex", gap:10 }}>
-                <button style={{ background:"var(--alert)", color:"#fff", border:"none", padding:"8px 18px", borderRadius:7, fontSize:"0.8rem", fontWeight:700, cursor:"pointer", fontFamily:"'Inter',sans-serif" }}>
-                  Escalate Alert
-                </button>
-                <button style={{ background:"transparent", color:"var(--stone)", border:"1px solid var(--border)", padding:"8px 18px", borderRadius:7, fontSize:"0.8rem", cursor:"pointer", fontFamily:"'Inter',sans-serif" }}>
-                  Mark Resolved
-                </button>
-              </div>
-              <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.6rem", letterSpacing:"0.08em", color:"var(--mist)", marginTop:12, textTransform:"uppercase" }}>
-                Preview — controls are illustrative in this sample view
-              </p>
-            </div>
-          )}
-
-          {/* CTA */}
-          <div style={{ textAlign:"center", padding:"2rem", border:"1px solid var(--border)", borderRadius:12, background:"rgba(255,255,255,0.01)" }}>
-            <p style={{ color:"var(--stone)", fontSize:"0.875rem", marginBottom:16 }}>Ready to start a session? Your timer and GPS check-ins are one tap away.</p>
-            <Link href="/checkin" style={{ background:"var(--signal)", color:"#fff", padding:"12px 28px", borderRadius:8, fontWeight:700, textDecoration:"none", fontSize:"0.9rem" }}>
-              Start Check-In Session →
-            </Link>
-          </div>
-        </div>
-      </main>
-    </>
-  );
-}
+const statusLabels:Record<Status,string>={active:"Active",safe:"Safe", "due-soon":"Due soon",overdue:"Overdue",offline:"Offline"};
+const filters:["all"|Status,string][]= [["all","All"],["active","Active"],["safe","Safe"],["due-soon","Due soon"],["overdue","Overdue"],["offline","Offline"]];
+function relativeDuration(start:string,end:string){const minutes=Math.max(0,Math.round((Date.parse(end)-Date.parse(start))/60000));if(minutes<60)return `${minutes} min`;const hours=Math.floor(minutes/60);const remainder=minutes%60;return remainder?`${hours} hr ${remainder} min`:`${hours} hr`;}
+function gpsCount(session:StoredSession){return session.checkIns.filter(item=>item.location).length+(session.initialLocation?1:0)}
+function formatDate(value:string){return new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(new Date(value))}
+function buildReport(session:StoredSession){return ["SAFESIGNAL SESSION RECORD",`Session: ${session.id}`,`Worker: ${session.worker}`,`Site: ${session.site}`,`Task: ${session.task}`,`Started: ${formatDate(session.startedAt)}`,`Ended: ${formatDate(session.endedAt)}`,`Duration: ${relativeDuration(session.startedAt,session.endedAt)}`,`Check-ins: ${session.checkIns.length}`,`GPS captures: ${gpsCount(session)}`,`Missed check-ins: ${session.missedCheckIns}`,`Outcome: ${session.outcome}`,"No contact or emergency service was notified by this on-device preview."].join("\n")}
+function downloadRecord(session:StoredSession){const url=URL.createObjectURL(new Blob([buildReport(session)],{type:"text/plain;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download=`safesignal-${session.id}.txt`;link.click();URL.revokeObjectURL(url)}
+function StatusBadge({status}:{status:Status}){return <span className={`${styles.status} ${styles[status]}`}><i/>{statusLabels[status]}</span>}
+function WorkerCard({worker}:{worker:Worker}){return <article className={`${styles.workerCard} ${worker.status===`overdue`?styles.workerOverdue:""}`}><div className={styles.identity}><span>{worker.initials}</span><div><b>{worker.name}</b><small>{worker.role}</small></div></div><div className={styles.location}><b>{worker.site}</b><small><MapPin/>{worker.location}</small></div><div className={styles.workerStatus}><StatusBadge status={worker.status}/>{worker.status==="overdue"?<strong>{worker.overdueBy} overdue</strong>:<small>Next {worker.nextCheckIn}</small>}</div><dl className={styles.workerFacts}><div><dt>Last check-in</dt><dd>{worker.lastCheckIn}</dd></div><div><dt>Interval</dt><dd>{worker.interval}</dd></div><div><dt>Check-ins</dt><dd>{worker.checkIns}</dd></div><div><dt>Emergency contact</dt><dd>{worker.hasContact?<><Check/>Available</>:"Not provided"}</dd></div></dl></article>}
+function IncidentPanel({worker}:{worker:Worker}){return <aside className={styles.incident} aria-labelledby="incident-title"><header><span><AlertTriangle/></span><div><small>Sample overdue incident</small><h2 id="incident-title">Supervisor attention required</h2></div><StatusBadge status="overdue"/></header><div className={styles.incidentPerson}><span>{worker.initials}</span><div><b>{worker.name}</b><small>{worker.role} · {worker.id}</small></div></div><dl><div><dt>Site</dt><dd>{worker.site}</dd></div><div><dt>Last known location</dt><dd>{worker.location}</dd></div><div><dt>Last check-in</dt><dd>{worker.lastCheckIn}</dd></div><div><dt>Time overdue</dt><dd>{worker.overdueBy}</dd></div><div><dt>Emergency contact</dt><dd>{worker.contact}</dd></div><div><dt>Escalation stage</dt><dd>{worker.escalation}</dd></div></dl><div className={styles.demoNotice}><FileWarning/><p><b>Illustrative controls only.</b> This preview cannot message, call, dispatch, or acknowledge an incident.</p></div><div className={styles.demoActions}><button disabled title="Demo action — calling is not connected"><Phone/>Demo action: call contact</button><button disabled title="Demo action — incident workflows are not connected"><Check/>Demo action: acknowledge</button></div></aside>}
+function LocalSessionCard({session,open,onToggle,onDelete}:{session:StoredSession;open:boolean;onToggle:()=>void;onDelete:()=>void}){return <article className={styles.localCard}><div className={styles.localMain}><div className={styles.localIdentity}><span><UserRound/></span><div><b>{session.worker}</b><small>{session.site}</small></div></div><dl><div><dt>Started</dt><dd>{formatDate(session.startedAt)}</dd></div><div><dt>Duration</dt><dd>{relativeDuration(session.startedAt,session.endedAt)}</dd></div><div><dt>Check-ins</dt><dd>{session.checkIns.length}</dd></div><div><dt>GPS</dt><dd>{gpsCount(session)}</dd></div></dl><div className={styles.localActions}><button onClick={onToggle} aria-expanded={open}><ChevronDown/> {open?"Hide details":"View details"}</button><button onClick={()=>downloadRecord(session)}><Download/>Export record</button><button className={styles.delete} onClick={onDelete}><Trash2/>Delete</button></div></div>{open?<div className={styles.localDetails}><div><span>Task</span><b>{session.task||"Not recorded"}</b></div><div><span>Outcome</span><b>{session.outcome.replaceAll("-"," ")}</b></div><div><span>Ended</span><b>{formatDate(session.endedAt)}</b></div><div><span>Missed check-ins</span><b>{session.missedCheckIns}</b></div>{session.safetyNotes?<p><b>Safety notes</b>{session.safetyNotes}</p>:null}</div>:null}</article>}
+export default function DashboardPage(){
+ const[query,setQuery]=useState("");const[filter,setFilter]=useState<"all"|Status>("all");const[now,setNow]=useState<Date|null>(null);const[lastRefreshed,setLastRefreshed]=useState<Date|null>(null);const[history,setHistory]=useState<SessionHistoryReadResult>({status:"empty",sessions:[]});const[openSession,setOpenSession]=useState<string|null>(null);
+ const refresh=()=>{const result=readSessionHistoryResult();setHistory(result);const current=new Date();setNow(current);setLastRefreshed(current)};
+ useEffect(()=>{queueMicrotask(refresh);const id=window.setInterval(()=>setNow(new Date()),60_000);return()=>clearInterval(id)},[]);
+ const shown=useMemo(()=>{const term=query.trim().toLowerCase();return sampleWorkers.filter(worker=>(filter==="all"||worker.status===filter)&&(!term||`${worker.name} ${worker.role} ${worker.site}`.toLowerCase().includes(term)))},[query,filter]);
+ const counts=useMemo(()=>Object.fromEntries(["active","safe","due-soon","overdue","offline"].map(status=>[status,sampleWorkers.filter(worker=>worker.status===status).length])) as Record<Status,number>,[]);
+ const overdueWorker=sampleWorkers.find(worker=>worker.status==="overdue")!;
+ const remove=(session:StoredSession)=>{if(!window.confirm(`Delete the local session record for ${session.worker}? This cannot be undone.`))return;if(deleteStoredSession(session.id))refresh();else setHistory({status:"unavailable",sessions:history.sessions})};
+ return <><a className={styles.skip} href="#dashboard-content">Skip to dashboard</a><main id="dashboard-content" className={styles.page}><header className={styles.header}><Link href="/" className={styles.brand}><ShieldCheck/>Safe<span>Signal</span></Link><div className={styles.headerActions}><span className={styles.preview}><i/>Sample supervisor preview</span><Link href="/checkin"><Radio/>Start personal check-in</Link></div></header><div className={styles.container}>
+ <section className={styles.hero}><div><small>Supervisor dashboard</small><h1>Team safety overview</h1><p>Prioritise overdue workers, then review routine check-in status. Team data below is illustrative.</p></div><div className={styles.time}><b>{now?new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(now):"Loading date…"}</b><strong>{now?new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"}).format(now):"--:--"}</strong><span><RefreshCw/>Last refreshed {lastRefreshed?new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(lastRefreshed):"—"}</span><button onClick={refresh}><RefreshCw/>Refresh local records</button></div></section>
+ <section className={styles.summary} aria-label="Sample worker summary"><SummaryCard label="Total workers" value={sampleWorkers.length} icon={<Users/>}/><SummaryCard label="Active sessions" value={counts.active} tone="blue" icon={<Radio/>}/><SummaryCard label="Safe / checked in" value={counts.safe} tone="green" icon={<ShieldCheck/>}/><SummaryCard label="Due soon" value={counts["due-soon"]} tone="orange" icon={<Clock3/>}/><SummaryCard label="Overdue" value={counts.overdue} tone="red" icon={<AlertTriangle/>}/><SummaryCard label="Offline" value={counts.offline} icon={<UserRound/>}/><SummaryCard label="Local records" value={history.sessions.length} icon={<HardDrive/>}/></section>
+ <IncidentPanel worker={overdueWorker}/>
+ <section className={styles.workers} aria-labelledby="workers-title"><div className={styles.sectionHead}><div><small>Sample team data</small><h2 id="workers-title">Worker status</h2><p>These workers do not represent live people or connected accounts.</p></div><label className={styles.search}><Search/><span className={styles.srOnly}>Search sample workers</span><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search worker, role, or site"/></label></div><div className={styles.filters} role="group" aria-label="Filter workers">{filters.map(([value,label])=><button key={value} className={filter===value?styles.filterActive:""} onClick={()=>setFilter(value)} aria-pressed={filter===value}>{label}<span>{value==="all"?sampleWorkers.length:counts[value]}</span></button>)}</div>{shown.length?<div className={styles.workerList}><div className={styles.workerColumns}><span>Worker</span><span>Site</span><span>Status</span><span>Session details</span></div>{shown.map(worker=><WorkerCard key={worker.id} worker={worker}/>)}</div>:<div className={styles.empty}><Search/><h3>No workers found</h3><p>{query?"No sample workers match this search. Clear the search or choose another status.":"No sample workers match this status filter."}</p><button onClick={()=>{setQuery("");setFilter("all")}}>Clear filters</button></div>}</section>
+ <section className={styles.local} aria-labelledby="local-title"><div className={styles.sectionHead}><div><small>Real records · this device only</small><h2 id="local-title">Local session history</h2><p>Completed personal check-ins stored in this browser. These records are never mixed with the sample team.</p></div><span className={styles.storageState} data-state={history.status}><HardDrive/>{history.status==="ok"?`${history.sessions.length} stored`:history.status==="empty"?"No saved sessions":history.status==="corrupt"?"Some data is corrupted":"Storage unavailable"}</span></div>{history.status==="unavailable"?<div className={styles.errorState}><FileWarning/><div><h3>Browser storage is unavailable</h3><p>SafeSignal cannot read, export, or delete local history in this browser context.</p></div><button onClick={refresh}>Try again</button></div>:null}{history.status==="corrupt"?<div className={styles.errorState}><FileWarning/><div><h3>Some local history could not be read</h3><p>Valid records are shown below. Corrupted entries were left untouched to avoid accidental data loss.</p></div></div>:null}{history.status!=="unavailable"&&!history.sessions.length?<div className={styles.empty}><HardDrive/><h3>No saved sessions on this device</h3><p>Complete a personal check-in to create a local record.</p><Link href="/checkin">Start personal check-in</Link></div>:null}{history.sessions.length?<div className={styles.localList}>{history.sessions.map(session=><LocalSessionCard key={session.id} session={session} open={openSession===session.id} onToggle={()=>setOpenSession(value=>value===session.id?null:session.id)} onDelete={()=>remove(session)}/>)}</div>:null}<p className={styles.localNotice}>Local browser storage only. No cloud account, supervisor sync, SMS, calls, or emergency dispatch is connected.</p></section>
+ </div></main><SiteFooter/></>}
+function SummaryCard({label,value,icon,tone="neutral"}:{label:string;value:number;icon:React.ReactNode;tone?:"neutral"|"blue"|"green"|"orange"|"red"}){return <article className={styles.summaryCard} data-tone={tone}><div><span>{label}</span>{icon}</div><b>{String(value).padStart(2,"0")}</b></article>}

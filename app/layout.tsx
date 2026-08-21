@@ -1,21 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: { default: "SafeSignal", template: "%s · SafeSignal" },
-  description: "Lone worker safety for the people who build everything. On-device check-in countdowns, GPS logged on every check-in, and a clear escalation plan for the moment one is missed.",
-  keywords: ["lone worker safety", "electrician safety", "field worker", "check-in app", "trade safety"],
-  openGraph: {
-    title: "SafeSignal — Lone Worker Safety",
-    description: "Because no one should work inside a live panel with nobody knowing where they are.",
-    type: "website",
-  },
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
+export const metadata:Metadata={metadataBase:new URL(process.env.NEXT_PUBLIC_SITE_URL??"http://localhost:3000"),title:{default:"SafeSignal | Lone-worker check-in safety",template:"%s | SafeSignal"},description:"Recoverable lone-worker check-in sessions with optional GPS evidence, clear overdue states and local session records.",keywords:["lone worker safety","worker check-in","field worker safety","GPS check-in"],openGraph:{title:"SafeSignal | Lone-worker check-in safety",description:"A clear on-device check-in workflow for people working alone.",type:"website",images:[{url:"/safesignal-industrial-hero.png",width:1680,height:945,alt:"Lone electrical maintenance worker in an industrial plant room"}]}};
+export const viewport:Viewport={themeColor:"#0b0d0f",colorScheme:"dark"};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body>{children}</body></html>}

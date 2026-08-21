@@ -1,6 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Rajdhani:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap');
-@import "tailwindcss";
-
 :root {
   --void:    #08030A;
   --surface: #0E0910;

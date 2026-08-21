@@ -1,0 +1,10 @@
+"use client";
+import Link from "next/link";
+import {Menu,X} from "lucide-react";
+import {useEffect,useRef,useState} from "react";
+import {Brand} from "./brand";
+import styles from "./site-header.module.css";
+const links=[["Product","#product-status"],["How it works","#how"],["Industries","#industries"],["Safety guidance","#guidance"],["FAQ","#faq"],["Dashboard","/dashboard"]] as const;
+export function SiteHeader(){const[open,setOpen]=useState(false);const menuRef=useRef<HTMLButtonElement>(null);const navRef=useRef<HTMLElement>(null);
+useEffect(()=>{if(!open)return;const previous=document.body.style.overflow;document.body.style.overflow="hidden";navRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){setOpen(false);menuRef.current?.focus()}if(event.key==="Tab"){const items=navRef.current?.querySelectorAll<HTMLElement>("a,button");if(!items?.length)return;const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}}};document.addEventListener("keydown",onKey);return()=>{document.body.style.overflow=previous;document.removeEventListener("keydown",onKey)}},[open]);
+const close=()=>setOpen(false);return <header className={styles.header}><Brand/><nav ref={navRef} id="primary-navigation" className={open?styles.open:""} aria-label="Primary navigation">{links.map(([label,href])=><Link key={label} href={href} onClick={close}>{label}</Link>)}<Link className={styles.cta} href="/checkin" onClick={close}>Start check-in</Link></nav><button ref={menuRef} className={styles.menu} onClick={()=>setOpen(value=>!value)} aria-expanded={open} aria-controls="primary-navigation" aria-label={open?"Close navigation":"Open navigation"}>{open?<X aria-hidden="true"/>:<Menu aria-hidden="true"/>}</button></header>}
