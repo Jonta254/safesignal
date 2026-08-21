@@ -1,0 +1,11 @@
+import test from "node:test";import assert from "node:assert/strict";
+import {boundedText,csvSafeCell,normalizeEmail,requestId,safeWebhookUrl} from "../lib/security.ts";
+import {resolveProductCapabilities} from "../lib/capabilities.ts";
+test("email normalization rejects malformed and oversized input",()=>{assert.equal(normalizeEmail(" Worker@Example.COM "),"worker@example.com");assert.equal(normalizeEmail("invalid"),null);assert.equal(normalizeEmail("a".repeat(250)+"@x.io"),null)});
+test("CSV cells neutralize spreadsheet formulas and escape quotes",()=>{assert.equal(csvSafeCell("=1+1"),"\"'=1+1\"");assert.equal(csvSafeCell("@SUM(A1)"),"\"'@SUM(A1)\"");assert.equal(csvSafeCell('safe "value"'),'"safe ""value"""')});
+test("bounded text strips control characters and enforces limits",()=>{assert.equal(boundedText(" Site\u0000 A ",20),"Site A");assert.equal(boundedText("x".repeat(21),20),null)});
+test("webhook URL rejects credentials, insecure production, and invalid schemes",()=>{assert.equal(safeWebhookUrl("http://example.com","production"),null);assert.equal(safeWebhookUrl("https://user:pass@example.com","production"),null);assert.equal(safeWebhookUrl("file:///tmp/x","development"),null);assert.equal(safeWebhookUrl("http://localhost:3001/hook","development")?.hostname,"localhost")});
+test("request IDs accept bounded safe values",()=>{assert.equal(requestId("request_12345678"),"request_12345678");assert.match(requestId("bad"),/^[0-9a-f-]{36}$/)});
+test("local preview is the fail-safe default",()=>{const value=resolveProductCapabilities({});assert.equal(value.mode,"local-preview");assert.equal(value.automaticEscalation,false);assert.equal(value.emergencyDispatch,false)});
+test("monitored production cannot be enabled without server configuration",()=>assert.throws(()=>resolveProductCapabilities({SAFESIGNAL_PRODUCT_MODE:"monitored-production"}),/requires database/));
+test("cloud preview does not imply alert delivery",()=>{const value=resolveProductCapabilities({SAFESIGNAL_PRODUCT_MODE:"cloud-preview",DATABASE_URL:"configured",AUTH_PROVIDER_SECRET:"configured"});assert.equal(value.cloudAccounts,true);assert.equal(value.automaticEscalation,false)})

@@ -1,0 +1,9 @@
+import test from "node:test";import assert from "node:assert/strict";
+import {assertTransition,canTransition,serverDeadlines} from "../lib/production-session.ts";
+import {DisabledNotificationProvider,TestNotificationProvider} from "../lib/notification-provider.ts";
+test("production state machine allows expected transitions",()=>{assert.equal(canTransition("draft","ready"),true);assert.equal(canTransition("grace","overdue"),true);assert.equal(canTransition("overdue","resolved"),true)});
+test("production state machine rejects unsafe transitions",()=>{assert.equal(canTransition("draft","overdue"),false);assert.equal(canTransition("completed","active"),false);assert.throws(()=>assertTransition("cancelled","active"),/Invalid session/)});
+test("server deadlines derive only from supplied server time",()=>{const now=new Date("2026-08-21T10:00:00Z");const value=serverDeadlines(now,900,120);assert.equal(value.nextCheckInAt.toISOString(),"2026-08-21T10:15:00.000Z");assert.equal(value.graceDeadlineAt.toISOString(),"2026-08-21T10:17:00.000Z")});
+test("deadline validation rejects unreasonable client values",()=>{assert.throws(()=>serverDeadlines(new Date(),0,120));assert.throws(()=>serverDeadlines(new Date(),900,9999))});
+test("disabled provider never claims a send",async()=>assert.deepEqual(await new DisabledNotificationProvider().send(),{status:"disabled",duplicate:false}));
+test("test provider prevents duplicate sends by idempotency key",async()=>{const provider=new TestNotificationProvider();const request={idempotencyKey:"session:step:1",channel:"sms",recipientReference:"contact-1",template:"overdue"};const first=await provider.send(request);const second=await provider.send(request);assert.equal(first.duplicate,false);assert.equal(second.duplicate,true);assert.equal(first.providerMessageId,second.providerMessageId)})

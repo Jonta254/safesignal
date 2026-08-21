@@ -1,0 +1,5 @@
+export type NotificationRequest={idempotencyKey:string;channel:"sms"|"voice"|"email"|"push";recipientReference:string;template:string};
+export type NotificationReceipt={status:"disabled"|"accepted";providerMessageId?:string;duplicate:boolean};
+export interface NotificationProvider{send(request:NotificationRequest):Promise<NotificationReceipt>}
+export class DisabledNotificationProvider implements NotificationProvider{async send():Promise<NotificationReceipt>{return {status:"disabled",duplicate:false}}}
+export class TestNotificationProvider implements NotificationProvider{private readonly seen=new Map<string,string>();async send(request:NotificationRequest):Promise<NotificationReceipt>{const previous=this.seen.get(request.idempotencyKey);if(previous)return {status:"accepted",providerMessageId:previous,duplicate:true};const id="test-"+request.idempotencyKey;this.seen.set(request.idempotencyKey,id);return {status:"accepted",providerMessageId:id,duplicate:false}}}

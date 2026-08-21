@@ -1,0 +1,4 @@
+import {NextResponse} from "next/server";
+import {publicCapabilitySummary,resolveProductCapabilities} from "@/lib/capabilities";
+export const dynamic="force-dynamic";
+export function GET(){try{const capabilities=resolveProductCapabilities();return NextResponse.json({status:"ok",service:"safesignal",capabilities:publicCapabilitySummary(capabilities),timestamp:new Date().toISOString()},{headers:{"Cache-Control":"no-store, max-age=0","X-Robots-Tag":"noindex"}})}catch{return NextResponse.json({status:"not-ready",service:"safesignal"},{status:503,headers:{"Cache-Control":"no-store, max-age=0","X-Robots-Tag":"noindex"}})}}
