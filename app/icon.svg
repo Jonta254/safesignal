@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SafeSignal">
+  <rect width="512" height="512" rx="112" fill="#1a1210"/>
+  <rect x="14" y="14" width="484" height="484" rx="98" fill="none" stroke="#ef6a3a" stroke-opacity=".42" stroke-width="28"/>
+  <path d="M256 91 397 151v99c0 88-58 145-141 175-83-30-141-87-141-175v-99l141-60Z" fill="none" stroke="#ef6a3a" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m195 258 42 42 84-91" fill="none" stroke="#ef6a3a" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
