@@ -1,34 +1,38 @@
 # SafeSignal
 
-SafeSignal is a functional, on-device lone-worker check-in prototype. It combines a safety-information website, a timestamp-based personal check-in flow, and a clearly labelled sample supervisor dashboard.
+SafeSignal is a functional **local-preview** lone-worker check-in application. It provides a timestamp-based personal check-in flow, optional GPS evidence, local history/export, and a clearly labelled sample supervisor dashboard.
 
-> SafeSignal does not send SMS, make phone calls, dispatch emergency services, provide live cloud supervision, or replace a workplace risk assessment and emergency procedure.
+> SafeSignal does not send SMS, make calls, dispatch emergency services, provide live cloud supervision, or replace workplace risk assessment and emergency procedures.
 
-## Current product
+## Architecture and modes
 
-- Pre-session work, contact, GPS, notification and device-readiness review
-- Absolute-deadline countdowns that survive refresh and browser timer throttling
+The current Next.js App Router application stores active and completed sessions in versioned browser localStorage. The server exposes only a safe health endpoint and an optional validated waitlist proxy.
+
+- `local-preview` — current default; device-local sessions and sample dashboard
+- `cloud-preview` — reserved for real accounts and durable storage; does not imply escalation
+- `monitored-production` — fails closed unless database, authentication, queue signing and notification configuration exist; it must not be enabled until operational launch blockers are closed
+
+See [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [SECURITY.md](SECURITY.md), [production schema](docs/production-schema.sql), [operations runbook](docs/OPERATIONS_RUNBOOK.md), and [deployment checklist](docs/DEPLOYMENT_CHECKLIST.md).
+
+## Current features
+
+- Pre-session work/contact/device review
+- Absolute-deadline countdown and refresh recovery
 - Normal, approaching, due-soon, grace and overdue states
-- Local sound, vibration and browser notifications where supported and permitted
-- Versioned active-session recovery and legacy localStorage migration
-- Optional GPS evidence with accuracy and capture time
-- Completed-session history, copy and plain-text export
-- Responsive supervisor preview with sample workers separated from real device-local records
-- Privacy, terms and safety, accessibility, FAQ and official-guidance information
+- Optional GPS capture with accuracy/time
+- Versioned localStorage migration and corruption recovery
+- Completed-session report copy/download
+- Sample supervisor dashboard separated from real device records
+- Shared image-backed SafeSignal logo, app icon and manifest
+- Security headers, product-mode gate, safe health response and bounded waitlist validation
 
-## Current limitations
+## Not configured
 
-- No authenticated accounts, organizations or cloud synchronization
-- No remote monitoring or server-owned deadlines
-- No automatic messages, calls, acknowledgements or escalation
-- No emergency-service integration
-- No continuous tracking
-- Browser background behavior, storage, GPS, sound, vibration and notifications vary by device and permission
-- No claim of ISO certification, legal compliance or formal accessibility conformance
+No database, authentication provider, cloud accounts, queue, delivery provider, distributed rate limiter, centralized monitoring, backups, on-call service, continuous tracking, or emergency integration is configured. The SQL schema is review-only and has not been applied.
 
-## Local development
+## Development
 
-SafeSignal uses pnpm and Node.js 20 or later.
+Requires Node.js 20+ and pnpm.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -36,6 +40,10 @@ pnpm dev
 ```
 
 Open `http://localhost:3000`.
+
+## Environment
+
+Copy `.env.example` to `.env.local`. Never expose privileged configuration with `NEXT_PUBLIC_`. Preview and production must use separate secrets and data. The waitlist endpoint must be HTTPS in production.
 
 ## Commands
 
@@ -45,31 +53,26 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm verify
+pnpm audit --audit-level high
 ```
 
-Browser verification scripts in `scripts/` cover the session lifecycle, recovery, GPS denial and unavailability, dashboard filtering, local records, responsive layout and console errors.
+CI runs frozen installation, static checks, tests, production build, dependency audit, a tracked-file secret-pattern scan, and `git diff --check`.
 
-## Local data
+## Local data and privacy
 
-The current product uses these versioned browser-storage keys:
-
-- `ss_active_session_v2` for the active session
-- `ss_sessions_v2` for completed records
-- `ss_sessions` as a read-only legacy migration source
-
-Records can contain worker, site, task, emergency-contact, safety-note, timestamp and optional GPS information. Data is not currently uploaded by the check-in or dashboard. Users should delete records or clear site data before leaving a shared device.
+`ss_active_session_v2` stores the active session; `ss_sessions_v2` stores up to 50 completed records; `ss_sessions` is read only for legacy migration. Records may contain names, phone numbers, sites, tasks, notes, timestamps and optional coordinates. They stay in the current browser and can be removed through record deletion or clearing site data.
 
 ## Routes
 
-- `/` product, industry and safety information
-- `/checkin` complete personal check-in lifecycle
-- `/dashboard` sample supervisor preview and device-local history
-- `/privacy` local-data notice
-- `/terms` prototype terms and safety boundaries
-- `/accessibility` tested behavior and known limitations
+- `/` product and safety information
+- `/checkin` local session lifecycle
+- `/dashboard` sample supervisor preview and local history
+- `/privacy`, `/terms`, `/accessibility`
+- `/api/health` non-sensitive service/capability health
+- `/api/waitlist` optional bounded webhook proxy
 
 ## Deployment
 
-Set `NEXT_PUBLIC_SITE_URL` to the public origin so metadata URLs resolve correctly. The optional `WAITLIST_WEBHOOK_URL` is used only by the waitlist API route; without it, the route returns an explicit configuration error.
+Set `NEXT_PUBLIC_SITE_URL` to the canonical origin. Keep `SAFESIGNAL_PRODUCT_MODE=local-preview` until approved cloud infrastructure exists. Follow [docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md). No test may send a production alert.
 
-Before positioning SafeSignal as a monitored safety service, add authenticated server-owned sessions, tested delivery and acknowledgement, operational monitoring, incident response, retention and access controls, and jurisdiction-specific safety, privacy and legal review.
+SafeSignal makes no claim of ISO, SOC 2, GDPR, HIPAA, accessibility or legal certification.
