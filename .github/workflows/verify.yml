@@ -30,8 +30,8 @@ jobs:
       - name: Basic tracked-file secret scan
         shell: bash
         run: |
-          if git grep -nEI ''(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|sk_live_[A-Za-z0-9]{16,}|AKIA[0-9A-Z]{16})'' -- '':!pnpm-lock.yaml''; then
-            echo ''Potential secret pattern found in tracked files.''
+          if git grep -nEI '(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|sk_live_[A-Za-z0-9]{16,}|AKIA[0-9A-Z]{16})' -- ':!pnpm-lock.yaml'; then
+            echo 'Potential secret pattern found in tracked files.'
             exit 1
           fi
       - run: git diff --check
